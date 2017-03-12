@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TextView xmlns:android="http://schemas.android.com/apk/res/android"
+          android:id="@+id/tv_spinner_item"
+          android:maxLines="1"
+          android:layout_width="match_parent"
+          android:layout_height="wrap_content"
+          android:paddingTop="@dimen/spinner_vertical_padding"
+          android:paddingBottom="@dimen/spinner_vertical_padding"
+          android:paddingEnd="@dimen/spinner_start_padding"
+          android:paddingStart="@dimen/spinner_start_padding"
+          android:background="@drawable/selector_spinner"
+          android:textSize="@dimen/low_text"
+          android:textAlignment="inherit"/>

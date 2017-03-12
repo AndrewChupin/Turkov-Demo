@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+          package="com.example.santa.anative">
+
+    <application
+        android:allowBackup="true"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:supportsRtl="true"
+        android:theme="@style/AppTheme">
+        <activity
+            android:name=".view.activity.AuthActivity"
+            android:windowSoftInputMode="adjustResize|stateAlwaysHidden">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+
+                <category android:name="android.intent.category.LAUNCHER"/>
+            </intent-filter>
+        </activity>
+        <activity android:name=".view.activity.ScheduleActivity">
+        </activity>
+        <activity android:name=".view.activity.ResetActivity">
+        </activity>
+        <activity android:name=".view.activity.MainActivity">
+        </activity>
+        <activity android:name=".view.activity.AboutActivity">
+        </activity>
+        <activity android:name=".view.activity.ProfileActivity">
+        </activity>
+        <activity android:name=".view.activity.AdditionEquipmentActivity">
+        </activity>
+        <activity android:name=".view.activity.EquipmentActivity"
+                  android:theme="@style/AppTheme">
+        </activity>
+        <activity android:name=".view.activity.SettingEquipmentActivity">
+        </activity>
+        <activity
+            android:name=".view.activity.RegistrationActivity"
+            android:windowSoftInputMode="adjustResize|stateAlwaysHidden">
+        </activity>
+        <activity android:name=".view.activity.TestActivity">
+        </activity>
+        <activity android:name=".view.activity.EditEquipmentActivity">
+        </activity>
+    </application>
+
+</manifest>

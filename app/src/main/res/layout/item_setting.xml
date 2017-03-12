@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              xmlns:app="http://schemas.android.com/apk/res-auto"
+              android:orientation="horizontal"
+              android:paddingTop="@dimen/medium"
+              android:paddingBottom="@dimen/medium"
+              android:layout_width="match_parent"
+              android:layout_height="wrap_content"
+    android:weightSum="4">
+
+    <TextView
+        android:id="@+id/tv_setting_time"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:textColor="@color/black"
+        android:textSize="@dimen/medium_text"
+        android:layout_gravity="center"
+        android:gravity="center"/>
+
+
+    <FrameLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:layout_gravity="center">
+
+        <android.support.v7.widget.AppCompatRadioButton
+            android:id="@+id/checkbox_setting_active"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:gravity="center"
+            app:buttonTint="@color/black"/>
+
+    </FrameLayout>
+
+    <TextView
+        android:id="@+id/tv_setting_index"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:layout_gravity="center"
+        android:textSize="@dimen/low_text"
+        android:gravity="center"/>
+
+    <FrameLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:layout_gravity="center">
+
+        <android.support.v7.widget.SwitchCompat
+            android:id="@+id/switch_setting_enable"
+            android:layout_gravity="end"
+            android:layout_marginEnd="@dimen/medium"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            style="@style/Switcher"/>
+
+
+    </FrameLayout>
+
+
+</LinearLayout>

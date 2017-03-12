@@ -1,0 +1,225 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/activity_equipment"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/white"
+    tools:context="com.example.santa.anative.view.activity.EquipmentActivity">
+
+    <include layout="@layout/toolbar"
+             android:id="@+id/toolbar_equipment"/>
+
+    <LinearLayout
+        android:id="@+id/ll_equipment_info"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:layout_below="@+id/toolbar_equipment"
+        android:layout_above="@+id/fl_equipment_schedule"
+        android:weightSum="1">
+
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/warm"
+                android:padding="@dimen/medium"
+                android:layout_gravity="center_vertical"/>
+
+            <android.support.v7.widget.SwitchCompat
+                android:layout_gravity="end"
+                android:layout_margin="@dimen/medium"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                style="@style/Switcher"/>
+
+        </FrameLayout>
+
+
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="@dimen/low"
+            android:orientation="horizontal">
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <ImageView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:layout_marginEnd="@dimen/low"
+                    android:src="@drawable/ic_speed_balck_36"/>
+
+                <android.support.v7.widget.AppCompatSpinner
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/spinner_ventilation_speed"
+                    android:background="@drawable/shape_spinner_static"
+                    android:popupBackground="@drawable/shape_dropbox_background"/>
+
+            </LinearLayout>
+
+            <android.support.v7.widget.AppCompatSpinner
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="end"
+                android:layout_gravity="end"
+                android:id="@+id/spinner_ventilation_temperature"
+                android:background="@drawable/shape_spinner_static"
+                android:popupBackground="@drawable/shape_dropbox_background"/>
+
+        </FrameLayout>
+
+
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="start|top"
+                android:gravity="center"
+                android:padding="@dimen/low"
+                android:drawableStart="@drawable/ic_thermometer_black_36"
+                android:text="99.9 C"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center|top"
+                android:gravity="center"
+                android:padding="@dimen/low"
+                android:drawableStart="@drawable/ic_humidity_black_36dp"
+                android:text="99.9 C"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:padding="@dimen/low"
+                android:gravity="center"
+                android:drawableStart="@drawable/ic_cloud_balck_36dp"
+                android:layout_gravity="end"
+                android:text="99.9 C"/>
+
+        </FrameLayout>
+
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="start|top"
+                android:gravity="center"
+                android:drawableStart="@drawable/ic_thermometer_black_36"
+                android:padding="@dimen/low"
+                android:text="99.9 C"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center|top"
+                android:gravity="center"
+                android:drawableStart="@drawable/ic_pressure_black_36dp"
+                android:padding="@dimen/low"
+                android:text="99.9 C"
+                android:id="@+id/textView"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:drawableStart="@drawable/ic_table_black_36dp"
+                android:padding="@dimen/low"
+                android:layout_gravity="end"
+                android:text="99.9 C"/>
+
+        </FrameLayout>
+
+        <LinearLayout
+            android:id="@+id/ll_error_container"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical">
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="@color/black"/>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/error_list"
+                android:padding="@dimen/low"
+                android:id="@+id/tv_expand_header"
+                android:textColor="@color/black"
+                android:background="@color/geyser"
+                android:drawableEnd="@drawable/ic_arrow_drop_down_black_18dp"/>
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="@color/black"/>
+
+            <android.support.v7.widget.RecyclerView
+                android:id="@+id/rv_error_list"
+                android:transcriptMode="disabled"
+                android:overScrollMode="never"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"/>
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+    <!-- TODO toolbar height -->
+    <FrameLayout
+        android:id="@+id/fl_equipment_schedule"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        android:layout_alignParentBottom="true"
+        android:background="@drawable/tollbar_bottom_gradient">
+
+        <TextView
+            android:layout_gravity="center"
+            android:gravity="center"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/schedule"
+            android:textColor="@color/white"
+            android:textSize="@dimen/medium_text"
+            android:drawablePadding="@dimen/medium"/>
+
+    </FrameLayout>
+
+    <FrameLayout
+        android:id="@+id/fl_pager_container"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/black_alpha"
+        android:visibility="gone"
+        android:layout_below="@+id/toolbar_equipment"
+        android:layout_above="@+id/fl_equipment_schedule">
+
+        <android.support.v4.view.ViewPager
+            android:id="@+id/vp_error_pager"
+            android:gravity="center"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:padding="@dimen/very_high"/>
+
+    </FrameLayout>
+
+</RelativeLayout>

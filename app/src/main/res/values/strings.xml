@@ -1,0 +1,105 @@
+<resources>
+
+    <!--Common-->
+    <string name="app_name">Turkov</string>
+    <string name="next">Продолжить</string>
+    <string name="save">Сохранить</string>
+    <string name="password">Пароль</string>
+    <string name="yes">Да</string>
+    <string name="no">Нет</string>
+    <string name="cancel">Отмена</string>
+
+    <!--Application-->
+    <string name="exit_question_title">Вы действительно хотите выйти?</string>
+
+    <!--Activity Titles-->
+    <string name="title_registration">Регистрация</string>
+    <string name="title_authorization">Регистрация</string>
+    <string name="title_reset_password">Восстановление пароля</string>
+    <string name="title_equipment">Оборудование</string>
+    <string name="title_about">О приложении</string>
+    <string name="title_profile">Профиль</string>
+    <string name="title_addition_equipment">Добавить оборудование</string>
+    <string name="title_setting_equipment">Настроки</string>
+    <string name="title_edit_equipment">Редактировать</string>
+    <string name="title_schedule">Расписание</string>
+    <string name="title_setting">Настройка</string>
+
+    <!--Equipment-->
+    <string name="ventilation">Вентеляция</string>
+    <string name="desiccant">Осушитель</string>
+    <string name="convector">Конвектор</string>
+    <string name="equipment_name">Название</string>
+    <string name="pin_code">Пин-код</string>
+    <string name="serial_number">Серийный номер</string>
+    <string name="addition_image">Добавить изображение</string>
+    <string name="country_code">Код страны</string>
+    <string name="locality">Населенный пункт</string>
+    <string name="address">Адрес</string>
+    <string name="coordinates_gps">Координаты GPS</string>
+    <string name="schedule">Расписание</string>
+    <string name="error_list">Список ошибок</string>
+
+    <!--Equipment Settings-->
+    <string name="enable_equipment">Включение оборудования</string>
+    <string name="disable_equipment">Выключить оборудование</string>
+    <string name="pause_all_settings">Пауза для всех событый</string>
+
+    <!--Registration and Profile System-->
+    <string name="name">Имя</string>
+    <string name="surname">Фамилия</string>
+    <string name="patronymic">Отчество</string>
+    <string name="company_name">Наименование организации</string>
+    <string name="phone_number">Номер телефона</string>
+    <string name="login_email">Email</string>
+    <string name="registration">Регистрация</string>
+    <string name="repeat_password">Подтвердите пароль</string>
+    <string name="registration_underline"><u>Регистрация</u></string>
+    <string name="forgot_password"><u>Забыли пароль?</u></string>
+    <string name="sign_in">Вход</string>
+    <string name="code">Код</string>
+    <string name="and_or">и/или</string>
+
+
+    <!--Info Messages-->
+    <string name="send_code_to_email">На ваш электронный адрес был выслан код подтверждения, введите его ниже:</string>
+    <string name="registration_success">Пользователь успешно зарегистрирован.</string>
+    <string name="incorrect_auth_data">Неверный логин или пароль</string>
+    <string name="input_new_password">Введите новый пароль:</string>
+    <string name="incorrect_passwords">Пароли не совпадают</string>
+
+    <!--Navigation Menu-->
+    <string name="menu_profile_settings">Настройки профиля</string>
+    <string name="menu_add_equipment">Добавить оборудование</string>
+    <string name="menu_about_application">О приложении</string>
+    <string name="menu_help">Помощь</string>
+    <string name="menu_change_wifi">Смена Wi-Fi</string>
+    <string name="menu_exit">Выход</string>
+
+    <!--Fan Speed-->
+    <string-array name="fan_array">
+        <item>1</item>
+        <item>2</item>
+        <item>3</item>
+        <item>A</item>
+    </string-array>
+
+    <!--Days Of The Week-->
+    <string-array name="week_days">
+        <item>Понедельник</item>
+        <item>Вторник</item>
+        <item>Среда</item>
+        <item>Четверг</item>
+        <item>Пятница</item>
+        <item>Суббота</item>
+        <item>Воскресение</item>
+    </string-array>
+
+    <!--NOT EDIT AND DONT USE-->
+    <string name="drawer_open">Open navigation drawer</string>
+    <string name="drawer_close">Close navigation drawer</string>
+
+    <!--Ids-->
+    <item name="item_click_support" type="id" />
+
+</resources>

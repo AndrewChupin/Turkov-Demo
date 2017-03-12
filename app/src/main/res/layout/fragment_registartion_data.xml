@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/activity_auth"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <EditText
+                android:id="@+id/tv_registration_surname"
+                android:hint="@string/surname"
+                android:inputType="textCapSentences|textAutoCorrect"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/et_vertical_margin"
+                style="@style/WhiteEditText"/>
+
+            <EditText
+                android:id="@+id/tv_registration_name"
+                android:hint="@string/name"
+                android:inputType="textCapSentences|textAutoCorrect"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                style="@style/WhiteEditText"/>
+
+            <EditText
+                android:id="@+id/tv_registration_patronymic"
+                android:inputType="textCapSentences|textAutoCorrect"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="@string/patronymic"
+                android:layout_marginBottom="0dp"
+                style="@style/WhiteEditText"/>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textAlignment="center"
+                android:textSize="@dimen/low_text"
+                android:padding="3dp"
+                android:text="@string/and_or"/>
+
+            <EditText
+                android:id="@+id/tv_registration_company"
+                android:inputType="textCapSentences|textAutoCorrect"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="@string/company_name"
+                style="@style/WhiteEditText"/>
+
+            <EditText
+                android:id="@+id/tv_registration_phone"
+                android:inputType="phone"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="@string/phone_number"
+                style="@style/WhiteEditText"/>
+
+            <EditText
+                android:id="@+id/tv_registration_email"
+                android:inputType="textEmailAddress"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/high"
+                android:hint="@string/login_email"
+                style="@style/WhiteEditText"/>
+
+            <android.support.design.widget.TextInputLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:hintEnabled="false"
+                app:passwordToggleTint="@color/geyser"
+                app:passwordToggleEnabled="true">
+
+            <android.support.design.widget.TextInputEditText
+                android:id="@+id/tv_registration_password"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textColor="@color/black"
+                android:inputType="textPassword"
+                android:imeOptions="actionSend"
+                style="@style/WhiteEditText"
+                android:hint="@string/password"/>
+
+            </android.support.design.widget.TextInputLayout>
+
+            <android.support.design.widget.TextInputLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:hintEnabled="false"
+                app:passwordToggleTint="@color/geyser"
+                app:passwordToggleEnabled="true">
+
+                <android.support.design.widget.TextInputEditText
+                    android:id="@+id/tv_registration_repeat_password"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textColor="@color/black"
+                    android:inputType="textPassword"
+                    android:imeOptions="actionSend"
+                    style="@style/WhiteEditText"
+                    android:hint="@string/repeat_password"/>
+
+
+            </android.support.design.widget.TextInputLayout>
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/low"
+                android:layout_marginBottom="@dimen/activity_vertical_margin">
+
+                <Button
+                    android:text="@string/registration"
+                    android:id="@+id/btn_send_registration_data"
+                    android:layout_alignParentTop="true"
+                    android:layout_alignParentEnd="true"
+                    style="@style/SendButton"/>
+
+            </RelativeLayout>
+
+        </LinearLayout>
+
+    </ScrollView>
+
+</LinearLayout>

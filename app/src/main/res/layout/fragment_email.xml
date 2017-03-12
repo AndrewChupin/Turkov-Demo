@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:background="@color/white"
+              android:orientation="vertical"
+              android:paddingEnd="@dimen/activity_horizontal_margin"
+              android:paddingStart="@dimen/activity_horizontal_margin"
+              android:paddingBottom="@dimen/activity_vertical_margin"
+              android:paddingTop="@dimen/activity_vertical_margin"
+              android:layout_width="match_parent"
+              android:layout_height="match_parent">
+
+    <EditText
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/et_vertical_margin"
+        android:hint="@string/login_email"
+        style="@style/WhiteEditText"/>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/low"
+        android:layout_marginBottom="@dimen/activity_vertical_margin">
+
+        <Button
+            android:id="@+id/btn_send_email"
+            android:text="@string/next"
+            android:layout_alignParentTop="true"
+            android:layout_alignParentEnd="true"
+            style="@style/SendButton"/>
+
+    </RelativeLayout>
+
+</LinearLayout>

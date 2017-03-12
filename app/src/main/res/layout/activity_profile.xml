@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/activity_auth"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <include layout="@layout/toolbar"
+        android:id="@+id/toolbar_profile"/>
+
+    <ImageView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingTop="@dimen/very_high"
+        android:src="@drawable/ic_user_black_36dp"/>
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <EditText
+                android:id="@+id/tv_profile_surname"
+                android:hint="@string/surname"
+                android:inputType="textCapSentences"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/et_vertical_margin"
+                style="@style/WhiteEditText"/>
+
+            <EditText
+                android:id="@+id/tv_profile_name"
+                android:hint="@string/name"
+                android:inputType="textCapSentences"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                style="@style/WhiteEditText"/>
+
+            <EditText
+                android:id="@+id/tv_profile_patronymic"
+                android:inputType="textCapSentences"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="@string/patronymic"
+                style="@style/WhiteEditText"/>
+
+
+            <EditText
+                android:id="@+id/tv_profile_phone"
+                android:inputType="phone"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="@string/phone_number"
+                style="@style/WhiteEditText"/>
+
+            <EditText
+                android:id="@+id/tv_profile_email"
+                android:inputType="textEmailAddress"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+
+                android:hint="@string/login_email"
+                style="@style/WhiteEditText"/>
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/low"
+                android:layout_marginBottom="@dimen/activity_vertical_margin">
+
+                <Button
+                    android:text="@string/save"
+                    android:id="@+id/btn_send_registration_data"
+                    android:layout_alignParentTop="true"
+                    android:layout_alignParentEnd="true"
+                    style="@style/SendButton"/>
+
+            </RelativeLayout>
+
+        </LinearLayout>
+
+    </ScrollView>
+
+</LinearLayout>

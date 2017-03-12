@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="colorPrimary">#000000</color>
+    <color name="colorPrimaryDark">#000000</color>
+    <color name="colorAccent">#000000</color>
+
+    <color name="toolbar_start">#4D202C</color>
+    <color name="toolbar_center">#98493D</color>
+    <color name="toolbar_end">#C78B4D</color>
+
+    <color name="toolbar_bottom_end">#2C4646</color>
+    <color name="toolbar_bottom_start">#09042D</color>
+
+    <color name="send_button_press">#2D9F70</color>
+    <color name="send_button">#33D27B</color>
+
+    <color name="error">#FFF44336</color>
+
+    <color name="geyser">#CCD0D2</color>
+
+    <color name="black">#000000</color>
+    <color name="white">#FFFFFF</color>
+    <color name="white_alpha">#67FAFAFA</color>
+    <color name="black_alpha">#BF000000</color>
+
+    <color name="toggle_enable">#58CE64</color>
+    <color name="toggle_disable">#D84E38</color>
+</resources>
