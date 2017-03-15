@@ -6,13 +6,13 @@
     android:id="@+id/activity_registration"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.example.santa.anative.view.activity.RegistrationActivity">
+    tools:context=".ui.auth.RegistrationActivity">
 
 
     <include layout="@layout/toolbar"
              android:id="@+id/toolbar_registration"/>
 
-    <com.example.santa.anative.ui.viewpager.NonSwappableViewPager
+    <com.example.santa.anative.widget.viewpager.NonSwappableViewPager
         android:id="@+id/vp_registration"
         android:layout_width="match_parent"
         android:layout_height="match_parent"

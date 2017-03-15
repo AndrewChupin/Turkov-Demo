@@ -12,7 +12,7 @@
     <EditText
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/et_vertical_margin"
+        android:layout_marginTop="@dimen/et_top_margin"
         android:hint="@string/login_email"
         style="@style/WhiteEditText"/>
 

@@ -22,7 +22,7 @@
                 android:inputType="textCapSentences|textAutoCorrect"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/et_vertical_margin"
+                android:layout_marginTop="@dimen/et_top_margin"
                 style="@style/WhiteEditText"/>
 
             <EditText
@@ -78,8 +78,9 @@
             <android.support.design.widget.TextInputLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:focusable="false"
                 app:hintEnabled="false"
-                app:passwordToggleTint="@color/geyser"
+                app:passwordToggleTint="@color/focus"
                 app:passwordToggleEnabled="true">
 
             <android.support.design.widget.TextInputEditText
@@ -98,7 +99,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 app:hintEnabled="false"
-                app:passwordToggleTint="@color/geyser"
+                app:passwordToggleTint="@color/focus"
                 app:passwordToggleEnabled="true">
 
                 <android.support.design.widget.TextInputEditText

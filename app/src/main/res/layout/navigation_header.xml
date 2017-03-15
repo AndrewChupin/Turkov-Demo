@@ -3,8 +3,8 @@
               android:orientation="vertical"
               android:layout_width="match_parent"
               android:layout_height="wrap_content"
-              android:paddingTop="32dp"
-              android:paddingBottom="32dp">
+              android:paddingTop="@dimen/ll_header_vertical_padding"
+              android:paddingBottom="@dimen/ll_header_vertical_padding">
 
     <!-- TODO PADDING -->
 
@@ -18,9 +18,9 @@
         android:layout_height="wrap_content"
         android:gravity="center"
         android:textStyle="bold"
-        android:paddingStart="@dimen/medium"
-        android:paddingEnd="@dimen/medium"
+        android:paddingStart="@dimen/tv_header_horizontal_padding"
+        android:paddingEnd="@dimen/tv_header_horizontal_padding"
         android:text="Константинов Константин Константинович"
-        android:textSize="@dimen/high_text"/>
+        android:textSize="@dimen/text_header_size"/>
 
 </LinearLayout>

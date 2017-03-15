@@ -2,8 +2,8 @@
 // Created by Andrew Chupin on 06.03.17.
 //
 
-#ifndef NATIVE_LCSX_RAND_H
-#define NATIVE_LCSX_RAND_H
+#ifndef __LCSX_RAND_H
+#define __LCSX_RAND_H
 typedef struct {
     uint32_t lc ;
     uint32_t sx ;
@@ -20,4 +20,3 @@ typedef struct {
 #ifdef RANDOM_LCSX_TEST
 int random_lcsx_test(void) ;
 #endif
-#endif //NATIVE_LCSX_RAND_H

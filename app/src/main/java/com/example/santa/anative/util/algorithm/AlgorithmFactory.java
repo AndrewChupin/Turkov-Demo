@@ -7,7 +7,7 @@ package com.example.santa.anative.util.algorithm;
 public class AlgorithmFactory {
 
 
-    public static final String SHA1_KEY = "SHA1";
+    public static final String SHA1_KEY = "Sha1";
     public static final String BASHE64_KEY = "BASHE64";
     public static final String SHA1_HMAC_KEY = "SHA1_HMAC";
 
@@ -25,13 +25,13 @@ public class AlgorithmFactory {
         Algorithm mAlgorithm = null;
         switch (name) {
             case SHA1_KEY:
-                mAlgorithm = new SHA1();
+                mAlgorithm = new Sha1();
                 break;
             case BASHE64_KEY:
-                mAlgorithm = new SHA1();
+                mAlgorithm = new Sha1();
                 break;
             case SHA1_HMAC_KEY:
-                mAlgorithm = new SHA1();
+                mAlgorithm = new Sha1();
                 break;
             default:
                 mAlgorithm = null;

@@ -5,17 +5,28 @@
 
     <dimen name="activity_default">16dp</dimen>
 
+    <!-- Header -->
+    <dimen name="tv_header_horizontal_padding">16dp</dimen>
+    <dimen name="ll_header_vertical_padding">32dp</dimen>
+    <dimen name="text_header_size">20sp</dimen>
+
+    <!-- EditText -->
     <dimen name="et_vertical_padding">12dp</dimen>
     <dimen name="et_horizontal_padding">28dp</dimen>
 
-    <dimen name="et_vertical_margin">16dp</dimen>
+    <dimen name="et_top_margin">16dp</dimen>
+    <dimen name="et_vertical_margin">8dp</dimen>
     <dimen name="et_horizontal_margin">16dp</dimen>
 
+    <!-- Spinner -->
     <dimen name="spinner_vertical_padding">6dp</dimen>
     <dimen name="spinner_end_padding">36dp</dimen>
     <dimen name="spinner_start_padding">24dp</dimen>
 
-    <dimen name="text_horizontal_edit_equipment">32dp</dimen>
+    <!-- TextView -->
+    <dimen name="tv_horizontal_edit_equipment">32dp</dimen>
+
+    <!-- Text -->
 
     <dimen name="zero">0dp</dimen>
     <dimen name="very_low">8dp</dimen>

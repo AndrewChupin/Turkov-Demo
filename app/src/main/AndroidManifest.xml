@@ -3,13 +3,14 @@
           package="com.example.santa.anative">
 
     <application
+        android:name=".application.AppDelegate"
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <activity
-            android:name=".view.activity.AuthActivity"
+            android:name=".ui.activity.AuthActivity"
             android:windowSoftInputMode="adjustResize|stateAlwaysHidden">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
@@ -17,30 +18,30 @@
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
         </activity>
-        <activity android:name=".view.activity.ScheduleActivity">
+        <activity android:name=".ui.activity.ScheduleActivity">
         </activity>
-        <activity android:name=".view.activity.ResetActivity">
+        <activity android:name=".ui.activity.ResetActivity">
         </activity>
-        <activity android:name=".view.activity.MainActivity">
+        <activity android:name=".ui.activity.MainActivity">
         </activity>
-        <activity android:name=".view.activity.AboutActivity">
+        <activity android:name=".ui.activity.AboutActivity">
         </activity>
-        <activity android:name=".view.activity.ProfileActivity">
+        <activity android:name=".ui.activity.ProfileActivity">
         </activity>
-        <activity android:name=".view.activity.AdditionEquipmentActivity">
+        <activity android:name=".ui.activity.AdditionEquipmentActivity">
         </activity>
-        <activity android:name=".view.activity.EquipmentActivity"
+        <activity android:name=".ui.activity.EquipmentActivity"
                   android:theme="@style/AppTheme">
         </activity>
-        <activity android:name=".view.activity.SettingEquipmentActivity">
+        <activity android:name=".ui.activity.SettingEquipmentActivity">
         </activity>
         <activity
-            android:name=".view.activity.RegistrationActivity"
+            android:name=".ui.auth.RegistrationActivity"
             android:windowSoftInputMode="adjustResize|stateAlwaysHidden">
         </activity>
-        <activity android:name=".view.activity.TestActivity">
+        <activity android:name=".ui.activity.TestActivity">
         </activity>
-        <activity android:name=".view.activity.EditEquipmentActivity">
+        <activity android:name=".ui.activity.EditEquipmentActivity">
         </activity>
     </application>
 

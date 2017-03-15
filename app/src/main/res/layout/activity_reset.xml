@@ -5,12 +5,12 @@
     android:id="@+id/activity_reset"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.example.santa.anative.view.activity.ResetActivity">
+    tools:context=".ui.activity.ResetActivity">
 
     <include layout="@layout/toolbar"
         android:id="@+id/toolbar_reset_password"/>
 
-    <com.example.santa.anative.ui.viewpager.NonSwappableViewPager
+    <com.example.santa.anative.widget.viewpager.NonSwappableViewPager
         android:id="@+id/vp_reset_password"
         android:layout_width="match_parent"
         android:layout_height="match_parent"

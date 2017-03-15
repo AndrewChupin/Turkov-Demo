@@ -31,7 +31,8 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:gravity="center"
-            app:buttonTint="@color/black"/>
+            android:enabled="false"
+            app:buttonTint="@android:color/holo_green_dark"/>
 
     </FrameLayout>
 

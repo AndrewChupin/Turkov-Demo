@@ -5,8 +5,7 @@
     android:id="@+id/activity_equipment"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/white"
-    tools:context="com.example.santa.anative.view.activity.EquipmentActivity">
+    tools:context=".ui.activity.EquipmentActivity">
 
     <include layout="@layout/toolbar"
              android:id="@+id/toolbar_equipment"/>
@@ -84,14 +83,26 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
 
-            <TextView
+            <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_gravity="start|top"
-                android:gravity="center"
                 android:padding="@dimen/low"
-                android:drawableStart="@drawable/ic_thermometer_black_36"
-                android:text="99.9 C"/>
+                android:orientation="horizontal">
+
+                <ImageView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:src="@drawable/ic_thermometer_black_36"/>
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="start|top"
+                    android:gravity="center"
+                    android:drawableStart="@drawable/ic_tree_black_36dp"
+                    android:text="99.9 C"/>
+
+            </LinearLayout>
 
             <TextView
                 android:layout_width="wrap_content"
@@ -117,14 +128,26 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
 
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="start|top"
-                android:gravity="center"
-                android:drawableStart="@drawable/ic_thermometer_black_36"
-                android:padding="@dimen/low"
-                android:text="99.9 C"/>
+           <LinearLayout
+               android:layout_width="wrap_content"
+               android:layout_height="wrap_content"
+               android:padding="@dimen/low"
+               android:orientation="horizontal">
+
+               <ImageView
+                   android:layout_width="wrap_content"
+                   android:layout_height="wrap_content"
+                   android:src="@drawable/ic_thermometer_black_36"/>
+
+               <TextView
+                   android:layout_width="wrap_content"
+                   android:layout_height="wrap_content"
+                   android:layout_gravity="start|top"
+                   android:gravity="center"
+                   android:drawableStart="@drawable/ic_home_black_36dp"
+                   android:text="99.9 C"/>
+
+           </LinearLayout>
 
             <TextView
                 android:layout_width="wrap_content"
@@ -165,7 +188,7 @@
                 android:padding="@dimen/low"
                 android:id="@+id/tv_expand_header"
                 android:textColor="@color/black"
-                android:background="@color/geyser"
+                android:background="@color/focus"
                 android:drawableEnd="@drawable/ic_arrow_drop_down_black_18dp"/>
 
             <View

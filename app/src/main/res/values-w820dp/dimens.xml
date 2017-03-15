@@ -6,5 +6,7 @@
 
     <dimen name="et_horizontal_margin">64dp</dimen>
 
-    <dimen name="text_horizontal_edit_equipment">96dp</dimen>
+    <dimen name="tv_horizontal_edit_equipment">96dp</dimen>
+
+    <dimen name="activity_default">64dp</dimen>
 </resources>

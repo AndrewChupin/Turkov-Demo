@@ -16,10 +16,12 @@
 
     <color name="error">#FFF44336</color>
 
-    <color name="geyser">#CCD0D2</color>
+    <color name="focus">#CCD0D2</color>
+    <color name="background">#ECEFF0</color>
 
     <color name="black">#000000</color>
     <color name="white">#FFFFFF</color>
+
     <color name="white_alpha">#67FAFAFA</color>
     <color name="black_alpha">#BF000000</color>
 
