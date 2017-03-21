@@ -16,6 +16,7 @@
         android:textAlignment="center"/>
 
     <EditText
+        android:id="@+id/tv_registration_code"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="@dimen/et_top_margin"

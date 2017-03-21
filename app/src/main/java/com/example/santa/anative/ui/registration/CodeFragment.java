@@ -1,4 +1,4 @@
-package com.example.santa.anative.ui.auth;
+package com.example.santa.anative.ui.registration;
 
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -6,11 +6,14 @@ import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.TextView;
 
 import com.example.santa.anative.R;
-import com.example.santa.anative.ui.auth.RegistrationActivity;
 import com.example.santa.anative.ui.activity.ResetActivity;
 
+import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 import butterknife.Unbinder;
@@ -21,7 +24,11 @@ import butterknife.Unbinder;
 
 public class CodeFragment extends Fragment {
 
+    @BindView(R.id.btn_send_code) Button mBtnSendCode;
+    @BindView(R.id.tv_registration_code) EditText mEtCode;
+
     private Unbinder mUnbinder;
+    private RegistrationPresenter mRegistrationPresenter;
 
     @Nullable
     @Override
@@ -33,15 +40,8 @@ public class CodeFragment extends Fragment {
 
     @OnClick(R.id.btn_send_code)
     void onSendCode() {
-        String activity = getActivity().getClass().getCanonicalName();
+        mRegistrationPresenter.onCreateServiceUser(mEtCode.toString().getBytes());
 
-        switch (activity) {
-            case ResetActivity.NAME:
-                ((ResetActivity) getActivity()).getResetPager().setCurrentItem(2, true);
-                break;
-            case RegistrationActivity.NAME:
-                break;
-        }
     }
 
     @Override

@@ -4,14 +4,14 @@ package com.example.santa.anative.model.entity;
  * Created by santa on 11.03.17.
  */
 
-public class Error {
+public class EquipmentError {
 
     private int id;
     private long date;
     private String name;
     private String info;
 
-    public Error(int id, long date, String name, String info) {
+    public EquipmentError(int id, long date, String name, String info) {
         this.id = id;
         this.date = date;
         this.name = name;

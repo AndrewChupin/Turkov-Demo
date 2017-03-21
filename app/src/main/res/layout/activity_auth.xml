@@ -6,10 +6,13 @@
     android:background="@drawable/splash"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".ui.activity.AuthActivity">
+    tools:context=".ui.auth.AuthActivity">
 
 
     <LinearLayout
+        android:id="@+id/ll_auth_from"
+        android:visibility="gone"
+        android:alpha="0"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
@@ -17,6 +20,7 @@
         android:layout_alignParentStart="true">
 
         <EditText
+            android:id="@+id/et_auth_email"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:background="@drawable/selector_et_auth"
@@ -25,6 +29,7 @@
             style="@style/WhiteEditText"/>
 
         <EditText
+            android:id="@+id/et_auth_pass"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:background="@drawable/selector_et_auth"
@@ -33,10 +38,12 @@
             style="@style/WhiteEditText"/>
 
         <TextView
+            android:id="@+id/tv_auth_error"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:textAlignment="center"
             android:textSize="@dimen/low_text"
+            android:visibility="gone"
             android:textColor="@color/error"
             android:text="@string/incorrect_auth_data"/>
 

@@ -4,7 +4,7 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 
-import com.example.santa.anative.model.entity.Error;
+import com.example.santa.anative.model.entity.EquipmentError;
 import com.example.santa.anative.ui.fragment.ErrorFragment;
 
 import java.util.ArrayList;
@@ -15,9 +15,9 @@ import java.util.ArrayList;
 
 public class ErrorPager extends FragmentPagerAdapter {
 
-    ArrayList<Error> mErrorsList;
+    ArrayList<EquipmentError> mErrorsList;
 
-    public ErrorPager(FragmentManager fm, ArrayList<Error> errorsList) {
+    public ErrorPager(FragmentManager fm, ArrayList<EquipmentError> errorsList) {
         super(fm);
         mErrorsList = errorsList;
     }

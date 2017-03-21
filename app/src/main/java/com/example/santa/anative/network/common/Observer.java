@@ -1,4 +1,6 @@
-package com.example.santa.anative.protocol;
+package com.example.santa.anative.network.common;
+
+import com.example.santa.anative.model.entity.Profile;
 
 /**
  * Created by santa on 13.03.17.

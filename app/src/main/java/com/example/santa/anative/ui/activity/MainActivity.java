@@ -34,7 +34,7 @@ public class MainActivity extends AppCompatActivity {
     @BindView(R.id.toolbar_title) TextView mTvTitleEquipment;
     @BindView(R.id.toolbar_main) Toolbar mToolbar;
     @BindView(R.id.navigation_view) NavigationView mNavigationView;
-    @BindView(R.id.rv_equipments) RecyclerView mRvEquipmants;
+    @BindView(R.id.rv_equipments) RecyclerView mRvEquipments;
 
     private ActionBarDrawerToggle mActionBarDrawerToggle;
 
@@ -69,15 +69,9 @@ public class MainActivity extends AppCompatActivity {
 
     private void initializeEquipments() {
         ArrayList<Equipment> equipmentsList = new ArrayList<>();
-        equipmentsList.add(new Equipment("Helloаывerrggrgrgrg", Equipment.CONVECTOR, "12", "23", true));
-        equipmentsList.add(new Equipment("dsadasd", Equipment.CONVECTOR, "123", "123", true));
-        equipmentsList.add(new Equipment("dasfasf", Equipment.CONVECTOR, "312", "423", false));
-        equipmentsList.add(new Equipment("xcvxcvbxc", Equipment.CONVECTOR, "112", "232", true));
-        equipmentsList.add(new Equipment("fsdfsdfsdf", Equipment.CONVECTOR, "412", "323", false));
-        equipmentsList.add(new Equipment("fsdfsdfsdf", Equipment.CONVECTOR, "412", "323", false));
         EquipmentAdapter equipmentAdapter = new EquipmentAdapter(this, equipmentsList);
-        mRvEquipmants.setAdapter(equipmentAdapter);
-        mRvEquipmants.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false));
+        mRvEquipments.setAdapter(equipmentAdapter);
+        mRvEquipments.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false));
     }
 
     @Override

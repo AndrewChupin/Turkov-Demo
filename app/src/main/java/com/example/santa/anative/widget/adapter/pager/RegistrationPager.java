@@ -4,14 +4,17 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 
-import com.example.santa.anative.ui.auth.CodeFragment;
-import com.example.santa.anative.ui.auth.RegistrationDataFragment;
+import com.example.santa.anative.ui.registration.CodeFragment;
+import com.example.santa.anative.ui.registration.RegistrationDataFragment;
 
 /**
  * Created by santa on 04.03.17.
  */
 
 public class RegistrationPager extends FragmentPagerAdapter {
+
+    public static final int DATA_FRAGMENT = 0;
+    public static final int CODE_FRAGMENT = 1;
 
 
     public RegistrationPager(FragmentManager fm) {

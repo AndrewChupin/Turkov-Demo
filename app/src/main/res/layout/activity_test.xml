@@ -11,17 +11,30 @@
     android:paddingTop="@dimen/activity_vertical_margin"
     tools:context=".ui.activity.TestActivity">
 
-    <TextView
+
+    <Button
+        android:id="@+id/button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/app_name"
-        android:layout_gravity="center"/>
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentStart="true"
+        android:text="Start"/>
 
-    <ImageView
+    <Button
+        android:id="@+id/button3"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:src="@drawable/ic_arrow_drop_down_black_18dp"
-        android:layout_gravity="end|center_vertical"/>
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentEnd="true"
+        android:text="End"/>
 
-
+    <EditText
+        android:id="@+id/editText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_marginEnd="88dp"
+        android:layout_toStartOf="@+id/button3"
+        android:ems="10"
+        android:inputType="textEmailAddress"/>
 </RelativeLayout>

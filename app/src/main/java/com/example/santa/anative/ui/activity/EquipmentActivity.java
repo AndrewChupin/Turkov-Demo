@@ -15,7 +15,7 @@ import android.widget.FrameLayout;
 import android.widget.TextView;
 
 import com.example.santa.anative.R;
-import com.example.santa.anative.model.entity.Error;
+import com.example.santa.anative.model.entity.EquipmentError;
 import com.example.santa.anative.widget.adapter.pager.ErrorPager;
 import com.example.santa.anative.widget.adapter.recycler.ExpandErrorAdapter;
 import com.example.santa.anative.widget.adapter.recycler.MySpinnerAdapter;
@@ -38,7 +38,7 @@ public class EquipmentActivity extends AppCompatActivity {
     @BindView(R.id.spinner_ventilation_speed) AppCompatSpinner mVentilationSpeed;
     @BindView(R.id.spinner_ventilation_temperature) AppCompatSpinner mVentilationTemperature;
 
-    private ArrayList<Error> mErrorList;
+    private ArrayList<EquipmentError> mErrorList;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -87,19 +87,19 @@ public class EquipmentActivity extends AppCompatActivity {
 
     private void initializeErrorList() {
         mErrorList = new ArrayList<>();
-        mErrorList.add(new Error(1, 1321,"1321","1321"));
-        mErrorList.add(new Error(1, 411,"1321","1325"));
-        mErrorList.add(new Error(1, 241,"1321","1346"));
-        mErrorList.add(new Error(1, 1432,"1321","4561"));
-        mErrorList.add(new Error(1, 1234,"1321","4561"));
-        mErrorList.add(new Error(1, 125,"1321","1"));
-        mErrorList.add(new Error(1, 123,"1321","1"));
-        mErrorList.add(new Error(1, 1432,"1321","3451"));
-        mErrorList.add(new Error(1, 1432,"1321","5431"));
-        mErrorList.add(new Error(1, 1432,"1321","1345"));
-        mErrorList.add(new Error(1, 1432,"1321","1534"));
-        mErrorList.add(new Error(1, 1432,"1321", "134"));
-        mErrorList.add(new Error(1, 1432,"1321", "1345"));
+        mErrorList.add(new EquipmentError(1, 1321,"1321","1321"));
+        mErrorList.add(new EquipmentError(1, 411,"1321","1325"));
+        mErrorList.add(new EquipmentError(1, 241,"1321","1346"));
+        mErrorList.add(new EquipmentError(1, 1432,"1321","4561"));
+        mErrorList.add(new EquipmentError(1, 1234,"1321","4561"));
+        mErrorList.add(new EquipmentError(1, 125,"1321","1"));
+        mErrorList.add(new EquipmentError(1, 123,"1321","1"));
+        mErrorList.add(new EquipmentError(1, 1432,"1321","3451"));
+        mErrorList.add(new EquipmentError(1, 1432,"1321","5431"));
+        mErrorList.add(new EquipmentError(1, 1432,"1321","1345"));
+        mErrorList.add(new EquipmentError(1, 1432,"1321","1534"));
+        mErrorList.add(new EquipmentError(1, 1432,"1321", "134"));
+        mErrorList.add(new EquipmentError(1, 1432,"1321", "1345"));
 
         ExpandErrorAdapter adapter = new ExpandErrorAdapter(this, mErrorList);
         mRvErrorList.setAdapter(adapter);
@@ -139,7 +139,7 @@ public class EquipmentActivity extends AppCompatActivity {
     }
 
 
-    public ArrayList<Error> getErrorList() {
+    public ArrayList<EquipmentError> getErrorList() {
         return mErrorList;
     }
 

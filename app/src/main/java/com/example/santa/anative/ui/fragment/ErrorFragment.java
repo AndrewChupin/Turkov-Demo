@@ -9,7 +9,7 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.example.santa.anative.R;
-import com.example.santa.anative.model.entity.Error;
+import com.example.santa.anative.model.entity.EquipmentError;
 import com.example.santa.anative.ui.activity.EquipmentActivity;
 
 import butterknife.BindView;
@@ -22,7 +22,7 @@ import butterknife.Unbinder;
 
 public class ErrorFragment extends Fragment {
 
-    private Error mError;
+    private EquipmentError mError;
     private int position;
 
     @BindView(R.id.tv_page_error_time) TextView mTvErrorTime;
@@ -52,7 +52,7 @@ public class ErrorFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_error, container, false);
         mUnbinder = ButterKnife.bind(this, view);
 
-        Error error = ((EquipmentActivity) getActivity()).getErrorList().get(position);
+        EquipmentError error = ((EquipmentActivity) getActivity()).getErrorList().get(position);
         String date = String.valueOf(error.getDate());
 
         mTvErrorTitle.setText(error.getName());

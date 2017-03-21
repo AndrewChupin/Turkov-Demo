@@ -1,37 +1,33 @@
 package com.example.santa.anative.model.entity;
 
+import io.realm.RealmModel;
+import io.realm.annotations.Ignore;
+import io.realm.annotations.RealmClass;
+
 /**
  * Created by santa on 05.03.17.
  */
 
-public class Equipment {
+@RealmClass
+public class Equipment implements RealmModel {
 
-    public static final String VENTILATION = "Ventilation";
-    public static final String CONVECTOR = "Convector";
-    public static final String DEHUMODOFIER = "Dehumidifier";
+    @Ignore
+    public static final int VENTILATION = 0;
+    @Ignore
+    public static final int CONVECTOR = 1;
+    @Ignore
+    public static final int DEHUMODOFIER = 2;
 
 
     private int id;
-
     private String name;
-    private String type;
+    private int type;
     private String temperature;
     private String humidity;
 
     private boolean isEnable;
 
    // private RealmList<Setting> equipmentSettings;
-
-
-
-    public Equipment(String name, String type, String temperature, String humidity, boolean isEnable) {
-        this.name = name;
-        this.type = type;
-        this.temperature = temperature;
-        this.humidity = humidity;
-        this.isEnable = isEnable;
-    }
-
 
 
     public int getId() {
@@ -42,14 +38,6 @@ public class Equipment {
         this.id = id;
     }
 
-   /* public RealmList<Setting> getEquipmentSettings() {
-        return equipmentSettings;
-    }
-
-    public void setEquipmentSettings(RealmList<Setting> equipmentSettings) {
-        this.equipmentSettings = equipmentSettings;
-    }*/
-
     public String getName() {
         return name;
     }
@@ -58,11 +46,11 @@ public class Equipment {
         this.name = name;
     }
 
-    public String getType() {
+    public int getType() {
         return type;
     }
 
-    public void setType(String type) {
+    public void setType(int type) {
         this.type = type;
     }
 

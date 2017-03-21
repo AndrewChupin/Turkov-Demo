@@ -5,6 +5,9 @@ import android.util.Base64;
 import com.example.santa.anative.application.Configurations;
 
 import java.math.BigInteger;
+import java.nio.ByteBuffer;
+import java.nio.CharBuffer;
+import java.nio.charset.Charset;
 import java.security.SecureRandom;
 import java.util.Arrays;
 import java.util.Locale;
@@ -19,21 +22,23 @@ public class AlgorithmUtils {
 
     public static String generateAbilitiesMask() {
         String value = new BigInteger(Configurations.MASK , 2).toString(16);
-        return String.format("%32s", value).replace(" ", "0");
+        return String.format("%8s", value).replace(" ", "0");
     }
 
-    public static String generateSecureRandom() {
+    public static int generateSecureRandom() {
         SecureRandom secureRandom = new SecureRandom();
         int intMax = Integer.MAX_VALUE;
-        return Integer.toHexString(secureRandom.nextInt(intMax));
+        return secureRandom.nextInt(intMax);
     }
 
-    public static byte[] encryptBase64(String message) {
-        return Base64.encode(message.getBytes(), Base64.DEFAULT);
-    }
-
-    public static byte[] decryptBase64(String message) {
-        return Base64.encode(message.getBytes(), Base64.DEFAULT);
+    public static byte[] toBytes(char[] chars) {
+        CharBuffer charBuffer = CharBuffer.wrap(chars);
+        ByteBuffer byteBuffer = Charset.forName("UTF-8").encode(charBuffer);
+        byte[] bytes = Arrays.copyOfRange(byteBuffer.array(),
+                byteBuffer.position(), byteBuffer.limit());
+        Arrays.fill(charBuffer.array(), '\u0000'); // clear sensitive data
+        Arrays.fill(byteBuffer.array(), (byte) 0); // clear sensitive data
+        return bytes;
     }
 
 }

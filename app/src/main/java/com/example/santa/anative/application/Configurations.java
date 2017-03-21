@@ -9,6 +9,9 @@ public class Configurations {
     public static final String SERVER_NAME = "must@turkov";
     public static final String MASK = "1010011";
 
+    public static final String HOST = "1010011";
+    public static final int PORT = 8089;
+
     /*// Able algorithms
     public static final int ABLE_OAT = 1;
     public static final int ABLE_SHA1 = 1;

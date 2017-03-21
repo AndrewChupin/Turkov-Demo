@@ -9,7 +9,7 @@ import java.util.Formatter;
  * Created by santa on 01.03.17.
  */
 
-public class Sha1 implements Algorithm {
+public class Sha1 {
 
     public Sha1() {}
 

@@ -17,6 +17,4 @@ typedef struct {
     void random_lcsx_init(rnd_lcsx_ctx_t *context, uint32_t k1, uint32_t k2) ;
     uint32_t random_lcsx_v32(rnd_lcsx_ctx_t *context) ;
     uint8_t random_lcsx_v8(rnd_lcsx_ctx_t *context) ;
-#ifdef RANDOM_LCSX_TEST
-int random_lcsx_test(void) ;
 #endif

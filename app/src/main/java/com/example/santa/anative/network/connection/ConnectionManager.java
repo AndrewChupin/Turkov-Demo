@@ -1,4 +1,4 @@
-package com.example.santa.anative.network;
+package com.example.santa.anative.network.connection;
 
 /**
  * Created by santa on 16.03.17.
@@ -21,6 +21,7 @@ public class ConnectionManager {
 
     public Connection create(String host, int port, ConnectionDelegate connectionDelegate) {
         return new Connection(host, port, connectionDelegate);
+
     }
 
 }

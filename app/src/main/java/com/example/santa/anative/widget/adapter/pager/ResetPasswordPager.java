@@ -8,7 +8,7 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 
-import com.example.santa.anative.ui.auth.CodeFragment;
+import com.example.santa.anative.ui.registration.CodeFragment;
 import com.example.santa.anative.ui.fragment.EmailFragment;
 import com.example.santa.anative.ui.fragment.NewPasswordFragment;
 

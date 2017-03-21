@@ -80,6 +80,7 @@ encode_block(uint8_t *inb, uint8_t len, uint8_t *outb) {
     }
 }
 
+
 /* Декодирует 4 входных байта в кодировке BASE64 в 3 выходных
  * Для внутреннего употребления
  */
@@ -106,11 +107,11 @@ decode_block(uint8_t *inb, uint8_t *outb) {
     if (err) {
         return err ;
     }
-    outb[0] = ((inbc[0] << 2) & 0xFC) | ((inbc[1]>>4)&0x03) ;
+    outb[0] = (uint8_t) (((inbc[0] << 2) & 0xFC) | ((inbc[1] >> 4) & 0x03));
     if (len > 1) {
-        outb[1] = ((inbc[1] << 4)&0xF0) | ((inbc[2] >> 2) &0x0F);
+        outb[1] = (uint8_t) (((inbc[1] << 4) & 0xF0) | ((inbc[2] >> 2) & 0x0F));
         if (len >2) {
-            outb[2] = ((inbc[2] << 6) & 0xC0) | (inbc[3] & 0x3F);
+            outb[2] = (uint8_t) (((inbc[2] << 6) & 0xC0) | (inbc[3] & 0x3F));
         }
     }
     return 0 ; }
@@ -136,7 +137,8 @@ base64_encode(void *in, uint32_t in_length, void *out) {
         o += 4 ;
         *o = '\0' ;
     }
-    return 0 ; }
+    return 0 ;
+}
 
 /* Декодирование входных данных BASE64 в двоичные данные.
  * Выходной буфер out должен быть достаточной длины, чтобы поместились все

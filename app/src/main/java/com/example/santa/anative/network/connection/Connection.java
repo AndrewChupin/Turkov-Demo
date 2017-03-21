@@ -1,6 +1,5 @@
-package com.example.santa.anative.network;
+package com.example.santa.anative.network.connection;
 
-import android.support.v7.app.AlertDialog;
 import android.util.Log;
 
 import java.io.BufferedReader;
@@ -17,6 +16,7 @@ import java.net.Socket;
 
 public class Connection {
 
+    public int id;
     private String serverMessage;
     private String mHost;
     private int mPort;
@@ -42,12 +42,12 @@ public class Connection {
 
         try {
             //here you must put your computer's IP address.
-            InetAddress serverAddr = InetAddress.getByName(mHost);
+            InetAddress serverAddress = InetAddress.getByName(mHost);
 
             Log.e("TCP Client", "C: Connecting...");
 
             //create a socket to make the connection with the server
-            Socket socket = new Socket(serverAddr, mPort);
+            Socket socket = new Socket(serverAddress, mPort);
 
             try {
                 //send the message to the server
@@ -76,7 +76,7 @@ public class Connection {
 
             } catch (Exception e) {
 
-                Log.d("TCP", "S: Error", e);
+                Log.d("TCP", "S: EquipmentError", e);
 
             } finally {
                 //the socket must be closed. It is not possible to reconnect to this socket
@@ -86,7 +86,7 @@ public class Connection {
 
         } catch (Exception e) {
 
-            Log.d("TCP", "C: Error", e);
+            Log.d("TCP", "C: EquipmentError", e);
 
         }
     }
@@ -106,7 +106,7 @@ public class Connection {
         mConnectionDelegate = connectionDelegate;
     }
 
-    public void stopClient(){
+    public void stopClient() {
         isConnected = false;
     }
 

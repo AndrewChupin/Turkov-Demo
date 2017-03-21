@@ -9,7 +9,7 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.example.santa.anative.R;
-import com.example.santa.anative.model.entity.Error;
+import com.example.santa.anative.model.entity.EquipmentError;
 
 import java.util.ArrayList;
 
@@ -22,10 +22,10 @@ import butterknife.ButterKnife;
 
 public class ExpandErrorAdapter extends RecyclerView.Adapter<ExpandErrorAdapter.ExpandChildViewHolder> {
 
-    private ArrayList<Error> mErrorList;
+    private ArrayList<EquipmentError> mErrorList;
     private Context mContext;
 
-    public ExpandErrorAdapter(Context context, ArrayList<Error> errorList) {
+    public ExpandErrorAdapter(Context context, ArrayList<EquipmentError> errorList) {
         mContext = context;
         mErrorList = errorList;
     }

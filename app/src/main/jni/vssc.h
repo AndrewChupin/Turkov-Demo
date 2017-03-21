@@ -3,13 +3,13 @@
 //
 
 
-#include <stdint.h>
+#ifndef __VSSC_H
+#define __VSSC_H
+
 #include "lcsx-rand.h"
 
-#ifndef NATIVE_VSSC_H
-#define NATIVE_VSSC_H
 typedef struct {
-    rnd_lcsx_ctx_t random_context ;
+    rnd_lcsx_ctx_t  random_context ;
 } vssc_ctx_t ;
 #ifndef NULL
 #define NULL ((void *)0)
@@ -26,6 +26,6 @@ void vssc_decrypt(
         uint32_t text_size,
         void *clear_text) ;
 #ifdef VSSC_TEST
-int vssc_test(void);
+int vssc_test(void) ;
 #endif
 #endif

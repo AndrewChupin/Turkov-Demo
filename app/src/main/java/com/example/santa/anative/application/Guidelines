@@ -1,0 +1,16 @@
+- application
+- model
+    - entity
+    - repository
+- network
+- protocol
+- ui
+    - auth
+- util
+    - algorithm
+    - common
+- widget
+    - adapter
+        - pager
+        - recycler
+    - viewpager

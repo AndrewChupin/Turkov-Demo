@@ -1,16 +1,17 @@
 <resources>
 
-    <!--Common-->
+    <!--Application-->
     <string name="app_name">Turkov</string>
+
+    <!--Common-->
     <string name="next">Продолжить</string>
+    <string name="waiting">Ожидайте</string>
     <string name="save">Сохранить</string>
     <string name="password">Пароль</string>
     <string name="yes">Да</string>
     <string name="no">Нет</string>
     <string name="cancel">Отмена</string>
-
-    <!--Application-->
-    <string name="exit_question_title">Вы действительно хотите выйти?</string>
+    <string name="empty"/>
 
     <!--Activity Titles-->
     <string name="title_registration">Регистрация</string>
@@ -59,14 +60,25 @@
     <string name="sign_in">Вход</string>
     <string name="code">Код</string>
     <string name="and_or">и/или</string>
-
+    <string name="authorization">Авторизация</string>
 
     <!--Info Messages-->
     <string name="send_code_to_email">На ваш электронный адрес был выслан код подтверждения, введите его ниже:</string>
     <string name="registration_success">Пользователь успешно зарегистрирован.</string>
-    <string name="incorrect_auth_data">Неверный логин или пароль</string>
     <string name="input_new_password">Введите новый пароль:</string>
-    <string name="incorrect_passwords">Пароли не совпадают</string>
+    <string name="exit_question_title">Вы действительно хотите выйти?</string>
+
+    <!--Info Messages Errors-->
+    <string name="incorrect_auth_data">Неверный логин или пароль</string>
+    <string name="passwords_not_equals">Пароли не совпадают</string>
+    <string name="incorrect_response">Некорректный ответ сервера!</string>
+    <string name="incorrect_password">Некорректный пароль!</string>
+    <string name="incorrect_code">Некорректный код!</string>
+    <string name="incorrect_email">Такого Email не существует!</string>
+    <string name="user_exist">Пользователь уже существует!</string>
+    <string name="code_failure">Не удалось отправить код!</string>
+    <string name="registration_failure">Ошибка при регистрации!</string>
+    <string name="unknown_error">Неизвестная ошибка!</string>
 
     <!--Navigation Menu-->
     <string name="menu_profile_settings">Настройки профиля</string>

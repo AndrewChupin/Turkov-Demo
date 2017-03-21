@@ -10,7 +10,7 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <activity
-            android:name=".ui.activity.AuthActivity"
+            android:name=".ui.activity.TestActivity"
             android:windowSoftInputMode="adjustResize|stateAlwaysHidden">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
@@ -36,10 +36,8 @@
         <activity android:name=".ui.activity.SettingEquipmentActivity">
         </activity>
         <activity
-            android:name=".ui.auth.RegistrationActivity"
+            android:name=".ui.registration.RegistrationActivity"
             android:windowSoftInputMode="adjustResize|stateAlwaysHidden">
-        </activity>
-        <activity android:name=".ui.activity.TestActivity">
         </activity>
         <activity android:name=".ui.activity.EditEquipmentActivity">
         </activity>
