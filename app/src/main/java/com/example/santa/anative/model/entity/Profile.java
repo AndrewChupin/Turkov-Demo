@@ -1,5 +1,8 @@
 package com.example.santa.anative.model.entity;
 
+import java.util.Formatter;
+import java.util.Locale;
+
 import io.realm.RealmList;
 import io.realm.RealmModel;
 import io.realm.RealmObject;
@@ -31,10 +34,13 @@ public class Profile implements RealmModel {
     private byte[] keyFirst;
     private byte[] keySecond;
     private byte[] randomKey;
+    private byte[] sessionTime;
+    private byte[] timestamp;
+    private byte[] token;
 
     private int lastSessionTime;
     private int registrationTime;
-    private int sessionTime;
+
 
     private RealmList<Equipment> equipments;
 
@@ -174,11 +180,33 @@ public class Profile implements RealmModel {
         this.equipments = equipments;
     }
 
-    public int getSessionTime() {
+    public byte[] getSessionTime() {
         return sessionTime;
     }
 
-    public void setSessionTime(int sessionTime) {
+    public void setSessionTime(byte[] sessionTime) {
         this.sessionTime = sessionTime;
+    }
+
+    public byte[] getTimestamp() {
+        return timestamp;
+    }
+
+    public void setTimestamp(byte[] timestamp) {
+        this.timestamp = timestamp;
+    }
+
+    public byte[] getToken() {
+        return token;
+    }
+
+    public void setToken(byte[] token) {
+        this.token = token;
+    }
+
+    public String generateId() {
+        Formatter id = new Formatter();
+        id.format(Locale.ENGLISH, "%s#%s", email, deviceId);
+        return id.toString();
     }
 }

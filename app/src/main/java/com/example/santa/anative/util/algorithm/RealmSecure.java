@@ -19,7 +19,7 @@ public class RealmSecure {
 
     private static byte[] getKey() {
         byte[] key = new byte[64];
-        Arrays.fill(key, (byte) 52);
+        // Arrays.fill(key, (byte) 52);
         return key;
     }
 

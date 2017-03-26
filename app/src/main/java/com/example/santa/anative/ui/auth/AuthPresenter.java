@@ -7,8 +7,8 @@ import com.example.santa.anative.network.connection.Connection;
 import com.example.santa.anative.network.connection.ConnectionManager;
 import com.example.santa.anative.network.common.Observer;
 import com.example.santa.anative.network.service.AuthService;
-import com.example.santa.anative.ui.common.Presentable;
-import com.example.santa.anative.ui.common.View;
+import com.example.santa.anative.network.service.TokenService;
+import com.example.santa.anative.ui.abstarct.Presentable;
 import com.example.santa.anative.util.algorithm.RealmSecure;
 import com.example.santa.anative.util.network.ServiceError;
 
@@ -17,15 +17,18 @@ import static com.example.santa.anative.application.Configurations.PORT;
 
 /**
  * Created by santa on 28.02.17.
+ * Presenter for AuthView
+ * @see AuthActivity
  */
 
 class AuthPresenter implements Presentable {
 
     private AuthView mAuthView;
-    private AuthService authProtocol;
+    private AuthService mAuthService;
+    private TokenService tokenService;
     private Profile mProfile;
 
-    public AuthPresenter(AuthView authView) {
+    AuthPresenter(AuthView authView) {
         mAuthView = authView;
     }
 
@@ -42,9 +45,9 @@ class AuthPresenter implements Presentable {
         mAuthView.showDialog();
 
         Connection connection = ConnectionManager.getDefault().create(HOST, PORT);
-        authProtocol = new AuthService(connection, mProfile, email, password);
+        mAuthService = new AuthService(connection, mProfile, email, password);
 
-            authProtocol.onSubscribe(new Observer() {
+        mAuthService.onSubscribe(new Observer() {
                 @Override
                 public void onError(int code) {
                     switch (code) {
@@ -52,7 +55,7 @@ class AuthPresenter implements Presentable {
                             mAuthView.showError(R.string.incorrect_response);
                             break;
                     }
-                    authProtocol.onStop();
+                    mAuthService.onStop();
                     mAuthView.hideDialog();
                 }
 
@@ -65,7 +68,29 @@ class AuthPresenter implements Presentable {
     }
 
     void onAuthorizeToken() {
+        mAuthView.showDialog();
 
+        Connection connection = ConnectionManager.getDefault().create(HOST, PORT);
+        tokenService = new TokenService(connection);
+
+        tokenService.onSubscribe(new Observer() {
+            @Override
+            public void onError(int code) {
+                switch (code) {
+                    case ServiceError.ERROR_RESPONSE:
+                        mAuthView.showError(R.string.incorrect_response);
+                        break;
+                }
+                tokenService.onStop();
+                mAuthView.hideDialog();
+            }
+
+            @Override
+            public void onComplete( ) {
+                mAuthView.hideDialog();
+                mAuthView.onStartMain();
+            }
+        }).onStart();
     }
 
 }

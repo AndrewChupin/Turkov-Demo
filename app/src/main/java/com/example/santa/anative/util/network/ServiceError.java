@@ -19,4 +19,6 @@ public class ServiceError {
     // Reset Password
     public static final int ERROR_RESET_FAILED = 503;
 
+    // MAIN
+    public static final int ERROR_PACKAGE_OUTPUT = 601;
 }

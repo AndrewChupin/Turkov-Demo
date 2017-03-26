@@ -12,7 +12,7 @@ import android.widget.TextView;
 
 import com.example.santa.anative.R;
 import com.example.santa.anative.model.entity.Setting;
-import com.example.santa.anative.ui.activity.SettingEquipmentActivity;
+import com.example.santa.anative.ui.equipment.setting.SettingEquipmentActivity;
 
 import java.util.ArrayList;
 

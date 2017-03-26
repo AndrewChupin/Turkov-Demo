@@ -75,7 +75,7 @@
 
                 <Button
                     android:text="@string/save"
-                    android:id="@+id/btn_send_registration_data"
+                    android:id="@+id/btn_profile_save"
                     android:layout_alignParentTop="true"
                     android:layout_alignParentEnd="true"
                     style="@style/SendButton"/>

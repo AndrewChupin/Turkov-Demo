@@ -76,7 +76,7 @@ public class Connection {
 
             } catch (Exception e) {
 
-                Log.d("TCP", "S: EquipmentError", e);
+                Log.d("TCP", "S: Error", e);
 
             } finally {
                 //the socket must be closed. It is not possible to reconnect to this socket
@@ -86,7 +86,7 @@ public class Connection {
 
         } catch (Exception e) {
 
-            Log.d("TCP", "C: EquipmentError", e);
+            Log.d("TCP", "C: Error", e);
 
         }
     }
@@ -97,6 +97,7 @@ public class Connection {
      */
     public void sendMessage(String message){
         if (out != null && !out.checkError()) {
+            Log.d("Logos", "Connection | sendMessage: " + message);
             out.println(message);
             out.flush();
         }

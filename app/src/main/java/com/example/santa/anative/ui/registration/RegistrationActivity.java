@@ -20,8 +20,7 @@ import butterknife.ButterKnife;
 
 public class RegistrationActivity extends AppCompatActivity implements RegistrationView {
 
-    public static final String NAME = "com.example.santa.anative.ui.registration.RegistrationActivity";
-    public static final String EMAIL = "email";
+
 
     @BindView(R.id.vp_registration) NonSwappableViewPager mVpRegistration;
     @BindView(R.id.toolbar_title) TextView mToolbarTitle;
@@ -103,13 +102,13 @@ public class RegistrationActivity extends AppCompatActivity implements Registrat
     @Override
     public void onAuth(String email) {
         Intent intent = new Intent(this, AuthActivity.class);
-        intent.putExtra(EMAIL, email);
+        intent.putExtra(AuthActivity.EMAIL, email);
         setResult(RESULT_OK, intent);
         finish();
     }
 
     @Override
-    public void onCheckCode() {
+    public void onEnterCode() {
         mVpRegistration.setCurrentItem(RegistrationPager.CODE_FRAGMENT, true);
     }
 

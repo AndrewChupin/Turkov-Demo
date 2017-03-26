@@ -7,7 +7,7 @@ package com.example.santa.anative.application;
 public class Configurations {
 
     public static final String SERVER_NAME = "must@turkov";
-    public static final String MASK = "1010011";
+    public static final int MASK = 0b1010011;
 
     public static final String HOST = "1010011";
     public static final int PORT = 8089;

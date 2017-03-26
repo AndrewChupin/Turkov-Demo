@@ -5,7 +5,7 @@
     android:id="@+id/activity_reset"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".ui.activity.ResetActivity">
+    tools:context=".ui.reset.ResetActivity">
 
     <include layout="@layout/toolbar"
         android:id="@+id/toolbar_reset_password"/>

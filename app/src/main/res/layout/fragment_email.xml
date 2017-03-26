@@ -10,9 +10,11 @@
               android:layout_height="match_parent">
 
     <EditText
+        android:id="@+id/et_reset_email"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="@dimen/et_top_margin"
+        android:inputType="textEmailAddress"
         android:hint="@string/login_email"
         style="@style/WhiteEditText"/>
 

@@ -2,7 +2,7 @@ package com.example.santa.anative.ui.auth;
 
 import android.support.annotation.StringRes;
 
-import com.example.santa.anative.ui.common.View;
+import com.example.santa.anative.ui.abstarct.View;
 
 /**
  * Created by santa on 15.03.17.

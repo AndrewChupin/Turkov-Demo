@@ -45,11 +45,6 @@ public class RegistrationDataFragment extends Fragment {
         return view;
     }
 
-    @OnClick(R.id.btn_send_registration_data)
-    void onSendRegistrationData() {
-        ((RegistrationActivity) getActivity()).getRegistrationPager().setCurrentItem(1, true);
-    }
-
     @Override
     public void onDestroy() {
         super.onDestroy();

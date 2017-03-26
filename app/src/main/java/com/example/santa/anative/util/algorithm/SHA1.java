@@ -19,7 +19,7 @@ public class Sha1 {
         try
         {
             MessageDigest crypt = MessageDigest.getInstance("SHA-1");
-            crypt.reset();
+            // encrypt.reset();
             crypt.update(password.getBytes("UTF-8"));
             sha1 = byteToHex(crypt.digest());
         }

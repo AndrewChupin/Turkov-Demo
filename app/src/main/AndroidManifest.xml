@@ -10,7 +10,7 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <activity
-            android:name=".ui.activity.TestActivity"
+            android:name=".ui.common.TestActivity"
             android:windowSoftInputMode="adjustResize|stateAlwaysHidden">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
@@ -18,28 +18,28 @@
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
         </activity>
-        <activity android:name=".ui.activity.ScheduleActivity">
+        <activity android:name=".ui.equipment.schedule.ScheduleActivity">
         </activity>
-        <activity android:name=".ui.activity.ResetActivity">
+        <activity android:name=".ui.reset.ResetActivity">
         </activity>
-        <activity android:name=".ui.activity.MainActivity">
+        <activity android:name=".ui.main.MainActivity">
         </activity>
-        <activity android:name=".ui.activity.AboutActivity">
+        <activity android:name=".ui.common.AboutActivity">
         </activity>
-        <activity android:name=".ui.activity.ProfileActivity">
+        <activity android:name=".ui.profile.ProfileActivity">
         </activity>
-        <activity android:name=".ui.activity.AdditionEquipmentActivity">
+        <activity android:name=".ui.equipment.addition.AdditionEquipmentActivity">
         </activity>
-        <activity android:name=".ui.activity.EquipmentActivity"
+        <activity android:name=".ui.equipment.detail.EquipmentActivity"
                   android:theme="@style/AppTheme">
         </activity>
-        <activity android:name=".ui.activity.SettingEquipmentActivity">
+        <activity android:name=".ui.equipment.setting.SettingEquipmentActivity">
         </activity>
         <activity
             android:name=".ui.registration.RegistrationActivity"
             android:windowSoftInputMode="adjustResize|stateAlwaysHidden">
         </activity>
-        <activity android:name=".ui.activity.EditEquipmentActivity">
+        <activity android:name=".ui.equipment.setting.EditEquipmentActivity">
         </activity>
     </application>
 

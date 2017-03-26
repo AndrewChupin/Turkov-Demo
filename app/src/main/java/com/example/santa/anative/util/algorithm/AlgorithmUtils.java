@@ -14,31 +14,23 @@ import java.util.Locale;
 
 import javax.crypto.KeyGenerator;
 
+import static com.example.santa.anative.application.Configurations.MASK;
+
 /**
  * Created by santa on 13.03.17.
  */
 
 public class AlgorithmUtils {
-
+    // TODO Generate Mask
     public static String generateAbilitiesMask() {
-        String value = new BigInteger(Configurations.MASK , 2).toString(16);
-        return String.format("%8s", value).replace(" ", "0");
+        //String value = new BigInteger(Configurations.MASK , 2).toString(16);
+        return String.format("%08x", MASK);
     }
 
     public static int generateSecureRandom() {
         SecureRandom secureRandom = new SecureRandom();
         int intMax = Integer.MAX_VALUE;
         return secureRandom.nextInt(intMax);
-    }
-
-    public static byte[] toBytes(char[] chars) {
-        CharBuffer charBuffer = CharBuffer.wrap(chars);
-        ByteBuffer byteBuffer = Charset.forName("UTF-8").encode(charBuffer);
-        byte[] bytes = Arrays.copyOfRange(byteBuffer.array(),
-                byteBuffer.position(), byteBuffer.limit());
-        Arrays.fill(charBuffer.array(), '\u0000'); // clear sensitive data
-        Arrays.fill(byteBuffer.array(), (byte) 0); // clear sensitive data
-        return bytes;
     }
 
 }

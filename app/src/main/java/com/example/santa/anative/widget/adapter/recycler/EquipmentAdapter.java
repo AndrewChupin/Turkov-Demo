@@ -11,13 +11,14 @@ import android.widget.TextView;
 
 import com.example.santa.anative.R;
 import com.example.santa.anative.model.entity.Equipment;
-import com.example.santa.anative.ui.activity.EquipmentActivity;
+import com.example.santa.anative.ui.equipment.detail.EquipmentActivity;
 
 import java.util.ArrayList;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
+import io.realm.RealmResults;
 
 /**
  * Created by santa on 11.03.17.
@@ -25,10 +26,10 @@ import butterknife.OnClick;
 
 public class EquipmentAdapter extends RecyclerView.Adapter<EquipmentAdapter.EquipmentViewHolder> {
 
-    private ArrayList<Equipment> mEquipmentList;
+    private RealmResults<Equipment> mEquipmentList;
     private Context mContext;
 
-    public EquipmentAdapter(Context context, ArrayList<Equipment> equipmentList) {
+    public EquipmentAdapter(Context context, RealmResults<Equipment> equipmentList) {
         mContext = context;
         mEquipmentList = equipmentList;
     }

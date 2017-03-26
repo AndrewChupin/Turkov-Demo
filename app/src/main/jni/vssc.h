@@ -25,7 +25,4 @@ void vssc_decrypt(
         void *encrypted,
         uint32_t text_size,
         void *clear_text) ;
-#ifdef VSSC_TEST
-int vssc_test(void) ;
-#endif
 #endif

@@ -1,16 +1,23 @@
 package com.example.santa.anative.network.service;
 
 import android.os.AsyncTask;
+import android.util.Base64;
 
+import com.example.santa.anative.model.entity.Package;
 import com.example.santa.anative.model.entity.Profile;
 import com.example.santa.anative.network.common.Observer;
 import com.example.santa.anative.network.common.Service;
 import com.example.santa.anative.network.connection.Connection;
 import com.example.santa.anative.network.connection.ConnectionDelegate;
+import com.example.santa.anative.util.common.ByteHelper;
 import com.example.santa.anative.util.network.ServiceError;
 
+import java.util.ArrayList;
 import java.util.Formatter;
 import java.util.Locale;
+
+import io.realm.RealmList;
+import io.realm.RealmResults;
 
 /**
  * Created by santa on 19.03.17.
@@ -22,6 +29,7 @@ public class MainService extends AsyncTask<String, Integer, Void> implements Ser
     private Observer mObserver;
     private Profile mProfile;
     public boolean isCode;
+    public RealmResults<Package> mPackages;
 
     // Server markers
     private static final String SERVER_HELLO_MESSAGE = "H";
@@ -49,7 +57,7 @@ public class MainService extends AsyncTask<String, Integer, Void> implements Ser
     @Override
     protected Void doInBackground(String... params) {
         mConnection.start();
-        mConnection.sendMessage(generateStartMessage(CLIENT_START_MESSAGE)); // TODO
+        mConnection.sendMessage(generateSimpleMessage(CLIENT_START_MESSAGE)); // TODO client-start-protocol-message = "W" "\n" .
         return null;
     }
 
@@ -95,7 +103,21 @@ public class MainService extends AsyncTask<String, Integer, Void> implements Ser
             switch (sessionParams[0]) {
                 // SUCCESS RESPONSE
                 case SERVER_REPORT_QUEUE:
-                    startRegistrationProtocol(sessionParams[1]);
+                    startPackageQueueProtocol(sessionParams[1]);
+                    break;
+                case SERVER_MESSAGE_CONFIRM:
+                    startConfirmProtocol();
+                    break;
+                case SERVER_MESSAGE_RECEIVE:
+                    startOutputProtocol(sessionParams[1]);
+                    break;
+
+                // ERROR RESPONSE
+                case SERVER_MESSAGE_REJECT:
+                    onProgressUpdate(ServiceError.ERROR_PACKAGE_OUTPUT);
+                    startInputProtocol();
+                case SERVER_QUEUE_EMPTY:
+                    startOutputEmptyProtocol();
                     break;
 
                 // DEFAULT RESPONSE
@@ -110,25 +132,100 @@ public class MainService extends AsyncTask<String, Integer, Void> implements Ser
 
 
     /**
-     * Данный метод проверяет имя сервера,
-     * В случае инвалидности возвращает error, с кодом ошибки ERROR_SERVER_NAME
-     * Иначе вызывает метод generateSessionRequest()
-     *
-     * @param serverName имя сервера
+     * Данный метод генерирует простое сообщение, содержащее только маркер запроса
+     * @param marker маркер запроса
+     * @return сообщение запроса к серверу
      */
-    private void startRegistrationProtocol(String serverName) {
-
+    private String generateSimpleMessage(String marker) {
+        Formatter request = new Formatter();
+        request.format(Locale.ENGLISH, "%s %n", marker);
+        return request.toString();
     }
 
 
     /**
-     * @param marker   маркер запроса
-     * @return строка запроса
+     * Данный метод проверяет имя сервера.
+     * В случае инвалидности возвращает error, с кодом ошибки ERROR_SERVER_NAME.
+     * Иначе вызывает метод generateSessionRequest().
+     *
+     * @param pack - BASE64(INBOX,OUTBOX) число входящих и исходящих пакетов
      */
-    private String generateStartMessage(String marker) {
-        Formatter request = new Formatter();
-        request.format(Locale.ENGLISH, "%s %n", marker);
-        return request.toString();
+    private void startPackageQueueProtocol(String pack) {
+        byte[] packages = Base64.decode(pack, Base64.DEFAULT);
+        ArrayList<byte[]> packagesList = ByteHelper.split(packages, ByteHelper.COMMA);
+        int outCount = Integer.parseInt(new String(packagesList.get(1)));
+        if (outCount > 0) {
+            startGetPackProtocol();
+        } else {
+            startInputProtocol();
+        }
+    }
+
+    /**
+     * Данный протокол срабатывает, при успешной отправке исходящего пакета на серевер,
+     * удаляет данные об отправленном пакете и продолжает работу сервиса
+     */
+    public void startConfirmProtocol() {
+        startInputProtocol();
+    }
+
+
+    /**
+     * Данный проктокол проверяет наличее исходящих пакетов в очереди.
+     * Если исходящия очередь не пуста, протокол запускает startSendPackProtocol(), для генерации
+     * и отправке очредного исходящего пакета на сервер.
+     * Если исходящая очередь пуста, протокол запускает startGetPackProtocol(), для запроса очередного
+     * входящего пакета.
+     */
+    private void startInputProtocol() {
+        if (mPackages.size() > 0) {
+            startSendPackProtocol();
+        } else {
+            startGetPackProtocol();
+        }
+    }
+
+    /**
+     * Данный протокол срабатывает, для генерации и отправки очередного исходящего пакета на сервер.
+     */
+    private void startSendPackProtocol() {
+
+    }
+
+    /**
+     * Проктол срабатывает при получении входящего пакета от сервера.
+     * Объект пакета проверяется на существование в исходящей очереди.
+     * 1. Если в исходящей очереди найден пакет с таким же идентификатором, сверяются временные
+     * метки пакетов.
+     * 1.1 Если временная метка исходящего пакета больше входящего, входящий пакет игнорируется.
+     * 1.2 Если временная метка исходящего пакета меньше выходящего, входящий пакет сохраняется
+     * на устройстве, а исходящий удаляется из очереди.
+     * 2. Если в исходящей очереди не найдет пакет с таким же идетификатором объекта, входящий
+     * пакет сохраняется на устройстве.
+     * @param pack входящий пакет BASE64(Ek(message))
+     */
+    private void startOutputProtocol(String pack) {
+
+    }
+
+    /**
+     * Протокол генерирует и отправляет запрос серверу на отправку входящего пакета
+     */
+    private void startGetPackProtocol() {
+        mConnection.sendMessage(generateSimpleMessage(CLIENT_GET_DATA));
+    }
+
+    /**
+     * Данный протокол срабатывает, когда входящая очередь сообщений от сервера пуста.
+     * Если исходящая очередь не пуста, запускается протокол передачи пакетов серверу.
+     * Если исходящая очередь пуста, соединение разрывается, сервис успешно заканчивает свою работу.
+     */
+    private void startOutputEmptyProtocol() {
+        if (mPackages.size() > 0) {
+            startInputProtocol();
+        } else {
+            mConnection.stopClient();
+        }
     }
 
 }

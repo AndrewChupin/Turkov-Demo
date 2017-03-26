@@ -6,11 +6,8 @@ import com.example.santa.anative.model.repository.ProfileRepository;
 import com.example.santa.anative.network.common.Observer;
 import com.example.santa.anative.network.connection.Connection;
 import com.example.santa.anative.network.connection.ConnectionManager;
-import com.example.santa.anative.network.service.AuthService;
 import com.example.santa.anative.network.service.RegistrationService;
-import com.example.santa.anative.ui.auth.AuthView;
-import com.example.santa.anative.ui.common.Presentable;
-import com.example.santa.anative.ui.common.View;
+import com.example.santa.anative.ui.abstarct.Presentable;
 import com.example.santa.anative.util.algorithm.RealmSecure;
 import com.example.santa.anative.util.common.Validate;
 import com.example.santa.anative.util.network.ServiceError;
@@ -26,14 +23,14 @@ import static com.example.santa.anative.application.Configurations.PORT;
 
 class RegistrationPresenter implements Presentable {
 
-    private RegistrationActivity mRegistrationView;
+    private RegistrationView mRegistrationView;
     private RegistrationService mRegistrationService;
     private Profile mProfile;
     private ProfileRepository mProfileRepository;
     private byte[] password;
     private String email;
 
-    RegistrationPresenter(RegistrationActivity registrationView) {
+    RegistrationPresenter(RegistrationView registrationView) {
         mRegistrationView = registrationView;
     }
 
@@ -84,6 +81,7 @@ class RegistrationPresenter implements Presentable {
             @Override
             public void onComplete( ) {
                 mRegistrationView.hideDialog();
+                mRegistrationView.onEnterCode();
             }
         }).onStart();
     }
@@ -105,7 +103,7 @@ class RegistrationPresenter implements Presentable {
 
         Connection connection = ConnectionManager.getDefault().create(HOST, PORT);
         mRegistrationService = new RegistrationService(connection, email, mProfile.getDeviceId(), password, code);
-        Arrays.fill(password, (byte) 32);
+        // Arrays.fill(password, (byte) 32);
 
         mRegistrationService.onSubscribe(new Observer() {
             @Override

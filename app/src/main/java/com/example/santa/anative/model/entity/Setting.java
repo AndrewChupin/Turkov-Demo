@@ -1,25 +1,42 @@
 package com.example.santa.anative.model.entity;
 
+import io.realm.RealmModel;
+import io.realm.annotations.Ignore;
+import io.realm.annotations.PrimaryKey;
+import io.realm.annotations.RealmClass;
+
 /**
  * Created by santa on 09.03.17.
  */
 
-public class Setting{
+@RealmClass
+public class Setting implements RealmModel {
 
+    @Ignore
     public static final byte MONDAY = 1;
+    @Ignore
     public static final byte TUESDAY = 2;
+    @Ignore
     public static final byte WEDNESDAY = 3;
+    @Ignore
     public static final byte THURSDAY = 4;
+    @Ignore
     public static final byte SARDAY = 5;
+    @Ignore
     public static final byte SATURNDAY = 6;
+    @Ignore
     public static final byte SUNNDAY = 7;
 
+    @Ignore
     public static final byte AUTO = 0;
+    @Ignore
     public static final byte FIRST = 1;
+    @Ignore
     public static final byte SECOND = 2;
+    @Ignore
     public static final byte THIRD = 3;
 
-
+    @PrimaryKey
     private int id;
 
     private int hour;
@@ -31,19 +48,7 @@ public class Setting{
 
     private int speed;
     private int temperature;
-
-
-
-    public Setting(int hour, int minutes, int day, boolean isEnable, boolean isActive, int speed, int temperature) {
-        this.hour = hour;
-        this.minutes = minutes;
-        this.day = day;
-        this.isEnable = isEnable;
-        this.isActive = isActive;
-        this.speed = speed;
-        this.temperature = temperature;
-    }
-
+    private int humidity;
 
 
     public int getId() {
@@ -108,5 +113,13 @@ public class Setting{
 
     public void setTemperature(int temperature) {
         this.temperature = temperature;
+    }
+
+    public int getHumidity() {
+        return humidity;
+    }
+
+    public void setHumidity(int humidity) {
+        this.humidity = humidity;
     }
 }

@@ -8,14 +8,16 @@ import com.example.santa.anative.network.connection.Connection;
 import com.example.santa.anative.network.connection.ConnectionDelegate;
 import com.example.santa.anative.network.common.Observer;
 import com.example.santa.anative.network.common.Service;
+import com.example.santa.anative.util.algorithm.KeyCrypter;
 import com.example.santa.anative.util.algorithm.Xor;
+import com.example.santa.anative.util.common.ByteArray;
+import com.example.santa.anative.util.common.ByteHelper;
 import com.example.santa.anative.util.network.ServiceError;
 import com.example.santa.anative.util.algorithm.AlgorithmUtils;
-import com.example.santa.anative.util.algorithm.Hkdf1;
+import com.example.santa.anative.util.algorithm.HkdfSha1;
 import com.example.santa.anative.util.common.Validate;
 
 import java.nio.ByteBuffer;
-import java.util.Arrays;
 import java.util.Formatter;
 import java.util.Locale;
 
@@ -28,7 +30,7 @@ public class RegistrationService extends AsyncTask<String, Integer, Void> implem
     private Connection mConnection;
     private Observer mObserver;
 
-    private String device;
+    private String deviceId;
     private String email;
 
     private byte[] password;
@@ -52,37 +54,57 @@ public class RegistrationService extends AsyncTask<String, Integer, Void> implem
     private static final String CLIENT_REGISTRATION_REQUEST = "G";
     private static final String CLIENT_REGISTRATION_CONFIRM = "X";
 
-
+    /**
+     *  Constructor RegistrationService, используется при создании запроса к серверу на получение
+     *  кода подтверждения регистрации.
+     */
     public RegistrationService(Connection connection, String email, String device) {
         mConnection = connection;
         this.email = email;
-        this.device = device;
+        this.deviceId = device;
         mConnection.attachDelegate(this);
     }
 
+    /**
+     *  Constructor RegistrationService, используется при подтверждении кода подтверждения, выланного
+     *  сервером и регистрации нового пользователя.
+     */
     public RegistrationService(Connection connection, String email, String device, byte[] password, byte[] code) {
         this.isCode = true;
         mConnection = connection;
         this.password = password;
         this.code = code;
         this.email = email;
-        this.device = device;
+        this.deviceId = device;
         mConnection.attachDelegate(this);
     }
 
-    // Override AsyncTask
+    /**
+     *  Override from AsyncTask
+     *  @see AsyncTask
+     */
     @Override
     protected Void doInBackground(String... params) {
         mConnection.start();
         return null;
     }
 
+
+    /**
+     *  Override from AsyncTask
+     *  @see AsyncTask
+     */
     @Override
     protected void onProgressUpdate(Integer... values) {
         super.onProgressUpdate(values);
         if (mObserver != null) mObserver.onError(values[0]);
     }
 
+
+    /**
+     *  Override from AsyncTask
+     *  @see AsyncTask
+     */
     @Override
     protected void onPostExecute(Void aVoid) {
         super.onPostExecute(aVoid);
@@ -90,7 +112,10 @@ public class RegistrationService extends AsyncTask<String, Integer, Void> implem
     }
 
 
-    // Override Service
+    /**
+     *  Override from Service
+     *  @see Service
+     */
     @Override
     public void onStop() {
         if (!isCancelled()) cancel(true);
@@ -98,12 +123,20 @@ public class RegistrationService extends AsyncTask<String, Integer, Void> implem
     }
 
 
+    /**
+     *  Override from Service
+     *  @see Service
+     */
     @Override
     public void onStart() {
         this.execute();
     }
 
 
+    /**
+     *  Override from Service
+     *  @see Service
+     */
     @Override
     public Service onSubscribe(Observer observer) {
         mObserver = observer;
@@ -111,7 +144,10 @@ public class RegistrationService extends AsyncTask<String, Integer, Void> implem
     }
 
 
-    // Override ConnectionDelegate
+    /**
+     *  Override from ConnectionDelegate
+     *  @see ConnectionDelegate
+     */
     @Override
     public void messageReceived(String response) {
         try {
@@ -153,7 +189,6 @@ public class RegistrationService extends AsyncTask<String, Integer, Void> implem
         }
     }
 
-
     /**
      *
      * Данный метод проверяет имя сервера,
@@ -163,39 +198,46 @@ public class RegistrationService extends AsyncTask<String, Integer, Void> implem
      */
     private void startRegistrationProtocol(String serverName) {
         if (!Validate.isNullOrEmpty(serverName) && serverName.equals(Configurations.SERVER_NAME)) {
+
             if (isCode) {
                 mConnection.sendMessage(generateRegistrationRequest(
                         CLIENT_REGISTRATION_REQUEST,
                         email,
-                        device,
+                        deviceId,
                         AlgorithmUtils.generateAbilitiesMask()
                 ));
             } else {
-                // TODO GENERATE 128 BIT
-                ByteBuffer block = ByteBuffer.wrap(code);
-                block.put((byte) 44);
-                block.put(String.valueOf(password.length).getBytes());
-                block.put((byte) 44);
-                block.put(password);
+                ByteArray block = new ByteArray();
+                block.append(code)
+                        .append(ByteHelper.COMMA)
+                        .append(ByteHelper.NULL)
+                        .append(ByteHelper.COMMA)
+                        .append(String.valueOf(password.length).getBytes())
+                        .append(ByteHelper.COMMA)
+                        .append(password)
+                        .append(ByteHelper.COMMA)
+                        .fillFreeRandom(180);
 
-                byte[] key = Hkdf1.deriveSecrets(code,
-                        email.getBytes(),
+                String clientId = String.format(Locale.ENGLISH, "%s#%s", email, deviceId);
+
+                byte[] key = HkdfSha1.deriveKey(code,
+                        clientId.getBytes(),
                         Configurations.SERVER_NAME.getBytes(),
                         128);
 
-                byte[] encode = Base64.encode(Xor.encode(block.array(), key), Base64.DEFAULT);
+                byte[] encode = KeyCrypter.encode(key, block.array());
 
                 mConnection.sendMessage(generateConfirmRequest(
                         CLIENT_REGISTRATION_CONFIRM,
                         email,
-                        device,
+                        deviceId,
                         AlgorithmUtils.generateAbilitiesMask(),
                         new String(encode)));
 
-                Arrays.fill(password, (byte) 32);
-                Arrays.fill(encode, (byte) 32);
-                Arrays.fill(key, (byte) 32);
-                block.reset();
+                // Arrays.fill(password, (byte) 32);
+                // Arrays.fill(encode, (byte) 32);
+                // Arrays.fill(key, (byte) 32);
+                // block.reset();
             }
         } else {
             publishProgress(ServiceError.ERROR_RESPONSE);

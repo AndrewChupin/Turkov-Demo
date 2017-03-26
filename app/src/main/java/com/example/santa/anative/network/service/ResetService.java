@@ -8,14 +8,16 @@ import com.example.santa.anative.network.connection.Connection;
 import com.example.santa.anative.network.connection.ConnectionDelegate;
 import com.example.santa.anative.network.common.Observer;
 import com.example.santa.anative.network.common.Service;
+import com.example.santa.anative.util.algorithm.KeyCrypter;
 import com.example.santa.anative.util.algorithm.Xor;
+import com.example.santa.anative.util.common.ByteArray;
+import com.example.santa.anative.util.common.ByteHelper;
 import com.example.santa.anative.util.network.ServiceError;
 import com.example.santa.anative.util.algorithm.AlgorithmUtils;
-import com.example.santa.anative.util.algorithm.Hkdf1;
+import com.example.santa.anative.util.algorithm.HkdfSha1;
 import com.example.santa.anative.util.common.Validate;
 
 import java.nio.ByteBuffer;
-import java.util.Arrays;
 import java.util.Formatter;
 import java.util.Locale;
 
@@ -28,7 +30,7 @@ public class ResetService extends AsyncTask<String, Integer, Void> implements Se
     private Connection mConnection;
     private Observer mObserver;
 
-    private String device;
+    private String deviceId;
     private String email;
 
     private byte[] password;
@@ -52,7 +54,7 @@ public class ResetService extends AsyncTask<String, Integer, Void> implements Se
     public ResetService(Connection connection, String email, String device) {
         mConnection = connection;
         this.email = email;
-        this.device = device;
+        this.deviceId = device;
         mConnection.attachDelegate(this);
     }
 
@@ -62,7 +64,7 @@ public class ResetService extends AsyncTask<String, Integer, Void> implements Se
         this.password = password;
         this.code = code;
         this.email = email;
-        this.device = device;
+        this.deviceId = device;
         mConnection.attachDelegate(this);
     }
 
@@ -145,9 +147,11 @@ public class ResetService extends AsyncTask<String, Integer, Void> implements Se
 
     /**
      * Данный метод проверяет имя сервера,
-     * В случае инвалидности возвращает error, с кодом ошибки ERROR_SERVER_NAME
-     * Иначе вызывает метод generateSessionRequest()
+     * В случае инвалидности протокол возвращает error, с кодом ошибки ERROR_SERVER_NAME
+     * Иначе вызывает метод generateResetRequest(), для запроса кода, для восстановления пароля.
      *
+     * В случае, если код был запрошен и введен пользователем, вызывается метод generateConfirmRequest()
+     * для генерации сообщения сброса старого и подтверждения нового пароля.
      * @param serverName имя сервера
      */
     private void startRegistrationProtocol(String serverName) {
@@ -156,35 +160,41 @@ public class ResetService extends AsyncTask<String, Integer, Void> implements Se
                 mConnection.sendMessage(generateResetRequest(
                         CLIENT_RESET_REQUEST,
                         email,
-                        device,
+                        deviceId,
                         AlgorithmUtils.generateAbilitiesMask()
                 ));
             } else {
-                // TODO GENERATE 128 BIT
-                ByteBuffer block = ByteBuffer.wrap(code);
-                block.put((byte) 44);
-                block.put(String.valueOf(password.length).getBytes());
-                block.put((byte) 44);
-                block.put(password);
+                ByteArray block = new ByteArray();
+                block.append(code)
+                        .append(ByteHelper.COMMA)
+                        .append(ByteHelper.NULL)
+                        .append(ByteHelper.COMMA)
+                        .append(String.valueOf(password.length).getBytes())
+                        .append(ByteHelper.COMMA)
+                        .append(password)
+                        .append(ByteHelper.COMMA)
+                        .fillFreeRandom(180);
 
-                byte[] key = Hkdf1.deriveSecrets(code,
-                        email.getBytes(),
+                String clientId = String.format(Locale.ENGLISH, "%s#%s", email, deviceId);
+
+                byte[] key = HkdfSha1.deriveKey(code,
+                        clientId.getBytes(),
                         Configurations.SERVER_NAME.getBytes(),
                         128);
 
-                byte[] encode = Base64.encode(Xor.encode(block.array(), key), Base64.DEFAULT);
+                byte[] encode = KeyCrypter.encode(key, block.array());
 
                 generateConfirmRequest(
                         CLIENT_RESET_REQUEST,
                         email,
-                        device,
+                        deviceId,
                         AlgorithmUtils.generateAbilitiesMask(),
                         new String(encode));
 
-                Arrays.fill(password, (byte) 32);
-                Arrays.fill(encode, (byte) 32);
-                Arrays.fill(key, (byte) 32);
-                block.reset();
+                // Arrays.fill(password, (byte) 32);
+                // Arrays.fill(encode, (byte) 32);
+                // Arrays.fill(key, (byte) 32);
+                // block.reset();
             }
         } else publishProgress(ServiceError.ERROR_RESPONSE);
     }

@@ -5,7 +5,7 @@
     android:id="@+id/activity_about"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".ui.activity.AboutActivity">
+    tools:context=".ui.common.AboutActivity">
 
     <include layout="@layout/toolbar"
              android:id="@+id/toolbar_about"/>

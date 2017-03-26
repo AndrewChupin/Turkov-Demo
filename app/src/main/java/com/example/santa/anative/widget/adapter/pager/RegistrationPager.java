@@ -4,7 +4,7 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 
-import com.example.santa.anative.ui.registration.CodeFragment;
+import com.example.santa.anative.ui.registration.RegistrationCodeFragment;
 import com.example.santa.anative.ui.registration.RegistrationDataFragment;
 
 /**
@@ -27,7 +27,7 @@ public class RegistrationPager extends FragmentPagerAdapter {
             case 0:
                 return new RegistrationDataFragment();
             case 1:
-                return new CodeFragment();
+                return new RegistrationCodeFragment();
             default:
                 break;
         }

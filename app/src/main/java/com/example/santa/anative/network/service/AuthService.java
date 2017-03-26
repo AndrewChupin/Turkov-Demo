@@ -10,17 +10,17 @@ import com.example.santa.anative.network.connection.Connection;
 import com.example.santa.anative.network.connection.ConnectionDelegate;
 import com.example.santa.anative.network.common.Observer;
 import com.example.santa.anative.network.common.Service;
-import com.example.santa.anative.util.algorithm.Crypter;
+import com.example.santa.anative.util.algorithm.KeyCrypter;
+import com.example.santa.anative.util.algorithm.StreamCrypt;
 import com.example.santa.anative.util.algorithm.RealmSecure;
+import com.example.santa.anative.util.common.ByteArray;
 import com.example.santa.anative.util.common.ByteHelper;
 import com.example.santa.anative.util.network.ServiceError;
 import com.example.santa.anative.util.algorithm.AlgorithmUtils;
-import com.example.santa.anative.util.algorithm.Hkdf1;
-import com.example.santa.anative.util.algorithm.Xor;
+import com.example.santa.anative.util.algorithm.HkdfSha1;
 import com.example.santa.anative.util.common.Validate;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Formatter;
 import java.util.Locale;
 
@@ -35,11 +35,10 @@ public class AuthService extends AsyncTask<Void, Object, Void> implements Servic
     private Observer mObserver;
 
     private Profile mProfile;
-    private String email;
 
+    private String email;
     private byte[] password;
     private byte[] okm;
-    private byte[] ks;
 
     // Server markers
     private static final String SERVER_HELLO_MESSAGE = "H";
@@ -53,22 +52,33 @@ public class AuthService extends AsyncTask<Void, Object, Void> implements Servic
     private static final String CLIENT_SEND_TOKEN = "T";
 
 
+    /**
+     * Constructor for this service
+     * Connection must be not null
+     */
     public AuthService(Connection connection, Profile profile, String email, byte[] password) {
         mConnection = connection;
         mProfile = profile;
         this.email = email;
         this.password = password;
-
+        if (connection == null) throw new NullPointerException();
         mConnection.attachDelegate(this);
     }
 
-    // Override AsyncTask
+    /**
+     *  Override from AsyncTask
+     *  @see AsyncTask
+     */
     @Override
     protected Void doInBackground(Void... params) {
         mConnection.start();
         return null;
     }
 
+    /**
+     *  Override from AsyncTask
+     *  @see AsyncTask
+     */
     @Override
     protected void onProgressUpdate(Object... values) {
         super.onProgressUpdate(values);
@@ -78,6 +88,10 @@ public class AuthService extends AsyncTask<Void, Object, Void> implements Servic
         }
     }
 
+    /**
+     *  Override from AsyncTask
+     *  @see AsyncTask
+     */
     @Override
     protected void onPostExecute(Void aVoid) {
         super.onPostExecute(aVoid);
@@ -87,20 +101,29 @@ public class AuthService extends AsyncTask<Void, Object, Void> implements Servic
     }
 
 
-    // Override Service
+    /**
+     *  Override from Service
+     *  @see Service
+     */
     @Override
     public void onStop() {
         if (!isCancelled()) cancel(true);
         mConnection.stopClient();
     }
 
-
+    /**
+     *  Override from Service
+     *  @see Service
+     */
     @Override
     public void onStart() {
         this.execute();
     }
 
-
+    /**
+     *  Override from Service
+     *  @see Service
+     */
     @Override
     public Service onSubscribe(Observer observer) {
         mObserver = observer;
@@ -108,7 +131,10 @@ public class AuthService extends AsyncTask<Void, Object, Void> implements Servic
     }
 
 
-    // Override ConnectionDelegate
+    /**
+     *  Override from ConnectionDelegate
+     *  @see ConnectionDelegate
+     */
     @Override
     public void messageReceived(String response) {
         try {
@@ -124,14 +150,14 @@ public class AuthService extends AsyncTask<Void, Object, Void> implements Servic
                     startTokenProtocol(sessionParams[1]);
                     break;
                 case SERVER_AUTH_SUCCESS:
-                    mConnection.stopClient();
+                    startFinishProtocol(sessionParams[1]);
                     break;
                 default:
                     publishProgress(ServiceError.ERROR_RESPONSE);
                     break;
             }
         } catch (Exception exception) {
-            publishProgress(ServiceError.ERROR_UNKNOWN);
+            publishProgress(ServiceError.ERROR_RESPONSE);
         }
     }
 
@@ -159,55 +185,58 @@ public class AuthService extends AsyncTask<Void, Object, Void> implements Servic
 
 
     /**
-     *
+     * Генерирует ответ на сообщение приветствия от сервера, данный ответ опеределяет настоящий протокол
      * @param marker маркер запроса
      * @param email email пользователя для регистрации
      * @param deviceId уникальный идентификатор устройства
-     * @param mask маска возможностей клиента
-     * @param random рандомное число
+     * @param mask маска возможностей клиента HEX
+     * @param random рандомное число, оборачивается в HEX, через Formatter
      * @return строка запроса
      */
     private String generateSessionRequest(String marker, String email, String deviceId, String mask, int random) {
         Formatter request = new Formatter();
-        request.format(Locale.ENGLISH, "%s %s#%s %s %8h%n", marker, email, deviceId, mask, random);
+        request.format(Locale.ENGLISH, "%s %s#%s %s %8H%n", marker, email, deviceId, mask, random);
         return request.toString();
     }
 
 
     /**
      *
-     * Данный метод проверяет параметры сесии, в защифрованном виде
+     * Данный метод проверяет параметры сесии, в зашифрованном виде
      * В случае инвалидности выкидывает ошибку, с кодом, ERROR_RESPONSE
      * Иначе вызывается метод generateConfirmMessage()
-     * params - ACC Nkey Mc
-     * decode-parmas - SId SK1 SK2 T L
-     * @param sessionParams параметры сессии
+     * paramsDecode - Ekc(SId,SK1,SK2,T,L)
+     * Kс = HKDF(Pc, Rc, NULL, N-KEY)
+     * @param sessionParams параметры сессии Base64(ACC,Nkey,Mc)
      */
     private void startCompareProtocol(String sessionParams) {
         if (!Validate.isNullOrEmpty(sessionParams)) {
             byte[] arr = Base64.decode(sessionParams, Base64.DEFAULT);
-            ArrayList<byte[]> params = ByteHelper.split(arr, (byte) 32);
+            ArrayList<byte[]> params = ByteHelper.split(arr, ByteHelper.COMMA); // byte ','
+            // TODO WELL CAPABILITIES-ACCEPTED
+            int length = Integer.parseInt(new String(params.get(1))); // TODO WELL BYTE TO INT
+            okm = HkdfSha1.deriveKeyIsl(password, mProfile.getRandomKey(), length);
+            // Arrays.fill(password, (byte) 32);
 
-            int length = Integer.parseInt(new String(params.get(1)));
-            okm = Hkdf1.deriveSecrets(password, mProfile.getRandomKey(), null, length);
-            Arrays.fill(password, (byte) 32);
-
-            byte[] tempDecode = Xor.decode(params.get(3), okm);
-            ArrayList<byte[]> paramsDecode = ByteHelper.split(tempDecode, (byte) 44); // byte ','
-            Arrays.fill(tempDecode, (byte) 32); // byte 'SPACE'
+            byte[] tempDecode = KeyCrypter.decode(okm, params.get(2));
+            ArrayList<byte[]> paramsDecode = ByteHelper.split(tempDecode, ByteHelper.COMMA); // byte ','
+            // Arrays.fill(tempDecode, (byte) 32); // byte 'SPACE'
 
             mProfile.setKeyLength(length);
             mProfile.setSessionId(paramsDecode.get(0));
             mProfile.setKeyFirst(paramsDecode.get(1));
             mProfile.setKeySecond(paramsDecode.get(2));
-            mProfile.setSessionTime(Integer.parseInt(new String(paramsDecode.get(4))));
-            ks = Crypter.crypt(mProfile.getKeyFirst(), mProfile.getKeySecond(), paramsDecode.get(3));
+            mProfile.setTimestamp(paramsDecode.get(3));
+            mProfile.setSessionTime(paramsDecode.get(4));
 
-            for (byte[] temp : paramsDecode) Arrays.fill(temp, (byte) 32);
-
+            int timestamp = Integer.parseInt(new String(paramsDecode.get(3))) - 1; // TODO WELL BYTE TO INT
+            byte[] kc = StreamCrypt.encrypt(mProfile.getKeyFirst(), mProfile.getKeySecond(), String.valueOf(timestamp).getBytes());
+            byte[] confirm = Base64.encode(kc, Base64.DEFAULT);
+            // for (byte[] temp : paramsDecode) Arrays.fill(temp, (byte) 32);
+            // Arrays.fill(kc, (byte) 32);
             mConnection.sendMessage(generateConfirmMessage(
                     CLIENT_CONFIRM_MESSAGE,
-                    new String(ks)));
+                    new String(confirm)));
         } else publishProgress(ServiceError.ERROR_RESPONSE);
     }
 
@@ -215,7 +244,7 @@ public class AuthService extends AsyncTask<Void, Object, Void> implements Servic
     /**
      *
      * Данный метод генерирует запрос с проверочным сообщением
-     * @param message проверочное сообщение для сервера
+     * @param message = Base64(Ek(Timestamp - 1))
      * @return строка запроса
      */
     private String generateConfirmMessage(String marker, String message) {
@@ -227,7 +256,8 @@ public class AuthService extends AsyncTask<Void, Object, Void> implements Servic
 
     /**
      *
-     * Данный метод достает и проверяет параметры сесии из токена
+     * Данный метод достает и проверяет параметры сесии из закрытого токена
+     * Input-Token = Base64(Eks(close-token))
      * В случае инвалидности выкидывает ошибку, с кодом, ERROR_RESPONSE
      * Иначе вызывается метод generateTokenMessage()
      * @param sessionParams параметры сессии
@@ -235,10 +265,20 @@ public class AuthService extends AsyncTask<Void, Object, Void> implements Servic
     private void startTokenProtocol(String sessionParams) {
         if (!Validate.isNullOrEmpty(sessionParams)) {
             byte[] arr = Base64.decode(sessionParams, Base64.DEFAULT);
-            Arrays.fill(okm, (byte) 32);
-            Arrays.fill(ks, (byte) 32);
-            // TODO Compare sessionParams
-            generateTokenMessage(CLIENT_SEND_TOKEN, new String(arr));
+            byte[] closeToken = KeyCrypter.decode(okm, arr);
+
+            mProfile.setToken(closeToken);
+
+            ByteArray array = new ByteArray();
+            array.appendWithSplit(ByteHelper.COMMA, mProfile.getSessionId(), closeToken);
+
+            byte[] message = Base64.encode(array.array(), Base64.DEFAULT);
+
+            generateTokenMessage(CLIENT_SEND_TOKEN, new String(message));
+
+            // Arrays.fill(okm, (byte) 32);
+            // byteBuffer.clear();
+
         } else publishProgress(ServiceError.ERROR_RESPONSE);
     }
 
@@ -246,7 +286,7 @@ public class AuthService extends AsyncTask<Void, Object, Void> implements Servic
     /**
      *
      * Данный метод генерирует запрос с проверочным сообщением
-     * @param token токен
+     * @param token Output-Token = BASE64(Session-Id,Token)
      * @return строка запроса
      */
     private String generateTokenMessage(String marker, String token) {
@@ -255,4 +295,19 @@ public class AuthService extends AsyncTask<Void, Object, Void> implements Servic
         return request.toString();
     }
 
+
+    /**
+     * Данный метод дешифрует и валидирует выходные данные от сервера
+     * В случае инвалидности выкидывает ошибку, с кодом, ERROR_RESPONSE
+     * Иначе проткол авторизации по паролю успешно завершается
+     * @param sessionParam BASE64(DID-CLIENT)
+     */
+    private void startFinishProtocol(String sessionParam) {
+        if (!Validate.isNullOrEmpty(sessionParam)) {
+            byte[] clientId = Base64.decode(sessionParam, Base64.DEFAULT);
+            mProfile.setClientId(Integer.parseInt(new String(clientId)));
+            mConnection.stopClient();
+        } else publishProgress(ServiceError.ERROR_RESPONSE);
+
+    }
 }

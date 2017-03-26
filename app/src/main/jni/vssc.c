@@ -56,11 +56,7 @@ vssc_encrypt(
  *               если NULL, то будет осуществляться шифрование "на месте"
 * и зашифрованный буфер будет помещен на место открытого. */
 void
-vssc_decrypt(
-        vssc_ctx_t *context,
-        void *encrypted,
-        uint32_t text_size,
-        void *clear_text) {
+vssc_decrypt(vssc_ctx_t *context, void *encrypted, uint32_t text_size, void *clear_text) {
     uint8_t *e, *c, r ;
     uint32_t i ;
     if (0 == text_size) {

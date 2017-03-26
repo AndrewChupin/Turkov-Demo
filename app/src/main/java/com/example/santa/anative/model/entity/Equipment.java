@@ -1,7 +1,9 @@
 package com.example.santa.anative.model.entity;
 
+import io.realm.RealmList;
 import io.realm.RealmModel;
 import io.realm.annotations.Ignore;
+import io.realm.annotations.PrimaryKey;
 import io.realm.annotations.RealmClass;
 
 /**
@@ -18,16 +20,27 @@ public class Equipment implements RealmModel {
     @Ignore
     public static final int DEHUMODOFIER = 2;
 
-
+    @PrimaryKey
     private int id;
     private String name;
     private int type;
+    private int pin;
+
+    private String serialNumber;
+    private String country;
+    private String location;
+    private String address;
+    private String gps;
+
     private String temperature;
     private String humidity;
 
     private boolean isEnable;
+    private int status;
+    private int state;
 
-   // private RealmList<Setting> equipmentSettings;
+    private RealmList<Setting> settings;
+    private RealmList<Error> errors;
 
 
     public int getId() {
@@ -54,6 +67,54 @@ public class Equipment implements RealmModel {
         this.type = type;
     }
 
+    public int getPin() {
+        return pin;
+    }
+
+    public void setPin(int pin) {
+        this.pin = pin;
+    }
+
+    public String getSerialNumber() {
+        return serialNumber;
+    }
+
+    public void setSerialNumber(String serialNumber) {
+        this.serialNumber = serialNumber;
+    }
+
+    public String getCountry() {
+        return country;
+    }
+
+    public void setCountry(String country) {
+        this.country = country;
+    }
+
+    public String getLocation() {
+        return location;
+    }
+
+    public void setLocation(String location) {
+        this.location = location;
+    }
+
+    public String getAddress() {
+        return address;
+    }
+
+    public void setAddress(String address) {
+        this.address = address;
+    }
+
+    public String getGps() {
+        return gps;
+    }
+
+    public void setGps(String gps) {
+        this.gps = gps;
+    }
+
     public String getTemperature() {
         return temperature;
     }
@@ -76,5 +137,37 @@ public class Equipment implements RealmModel {
 
     public void setEnable(boolean enable) {
         isEnable = enable;
+    }
+
+    public int getStatus() {
+        return status;
+    }
+
+    public void setStatus(int status) {
+        this.status = status;
+    }
+
+    public int getState() {
+        return state;
+    }
+
+    public void setState(int state) {
+        this.state = state;
+    }
+
+    public RealmList<Setting> getSettings() {
+        return settings;
+    }
+
+    public void setSettings(RealmList<Setting> settings) {
+        this.settings = settings;
+    }
+
+    public RealmList<Error> getErrors() {
+        return errors;
+    }
+
+    public void setErrors(RealmList<Error> errors) {
+        this.errors = errors;
     }
 }
