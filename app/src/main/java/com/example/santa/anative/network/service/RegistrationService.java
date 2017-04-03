@@ -138,9 +138,8 @@ public class RegistrationService extends AsyncTask<String, Integer, Void> implem
      *  @see Service
      */
     @Override
-    public Service onSubscribe(Observer observer) {
+    public void onSubscribe(Observer observer) {
         mObserver = observer;
-        return this;
     }
 
 
@@ -149,9 +148,9 @@ public class RegistrationService extends AsyncTask<String, Integer, Void> implem
      *  @see ConnectionDelegate
      */
     @Override
-    public void messageReceived(String response) {
+    public void messageReceived(byte[] response) {
         try {
-            String[] sessionParams = response.split("\\s+");
+            String[] sessionParams = new String(response).split("\\s+");
             switch (sessionParams[0]) {
                 // SUCCESS RESPONSE
                 case SERVER_HELLO_MESSAGE:
@@ -198,27 +197,26 @@ public class RegistrationService extends AsyncTask<String, Integer, Void> implem
      */
     private void startRegistrationProtocol(String serverName) {
         if (!Validate.isNullOrEmpty(serverName) && serverName.equals(Configurations.SERVER_NAME)) {
-
+            String clientId = String.format(Locale.ENGLISH, "%s#%s", email, deviceId);
             if (isCode) {
-                mConnection.sendMessage(generateRegistrationRequest(
-                        CLIENT_REGISTRATION_REQUEST,
-                        email,
-                        deviceId,
-                        AlgorithmUtils.generateAbilitiesMask()
-                ));
+                ByteArray response = new ByteArray();
+                response.appendWithSplit(ByteHelper.SPACE,
+                        CLIENT_REGISTRATION_REQUEST.getBytes(),
+                        clientId.getBytes(),
+                        AlgorithmUtils.generateAbilitiesMask())
+                        .append(ByteHelper.NL);
+                mConnection.sendMessage(response.array());
             } else {
                 ByteArray block = new ByteArray();
                 block.append(code)
                         .append(ByteHelper.COMMA)
                         .append(ByteHelper.NULL)
                         .append(ByteHelper.COMMA)
-                        .append(String.valueOf(password.length).getBytes())
+                        .append(ByteHelper.intToByteArray(password.length))
                         .append(ByteHelper.COMMA)
                         .append(password)
                         .append(ByteHelper.COMMA)
                         .fillFreeRandom(180);
-
-                String clientId = String.format(Locale.ENGLISH, "%s#%s", email, deviceId);
 
                 byte[] key = HkdfSha1.deriveKey(code,
                         clientId.getBytes(),
@@ -227,12 +225,14 @@ public class RegistrationService extends AsyncTask<String, Integer, Void> implem
 
                 byte[] encode = KeyCrypter.encode(key, block.array());
 
-                mConnection.sendMessage(generateConfirmRequest(
-                        CLIENT_REGISTRATION_CONFIRM,
-                        email,
-                        deviceId,
+                ByteArray response = new ByteArray();
+                response.appendWithSplit(ByteHelper.SPACE,
+                        CLIENT_REGISTRATION_CONFIRM.getBytes(),
+                        clientId.getBytes(),
                         AlgorithmUtils.generateAbilitiesMask(),
-                        new String(encode)));
+                        Base64.encode(encode, Base64.DEFAULT))
+                        .append(ByteHelper.NL);
+                mConnection.sendMessage(response.array());
 
                 // Arrays.fill(password, (byte) 32);
                 // Arrays.fill(encode, (byte) 32);

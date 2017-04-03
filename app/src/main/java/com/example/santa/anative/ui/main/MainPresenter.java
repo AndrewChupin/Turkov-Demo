@@ -1,10 +1,13 @@
 package com.example.santa.anative.ui.main;
 
+import com.example.santa.anative.model.entity.Equipment;
 import com.example.santa.anative.model.repository.EquipmentRepository;
-import com.example.santa.anative.model.repository.PackageRepository;
-import com.example.santa.anative.model.repository.ProfileRepository;
-import com.example.santa.anative.ui.abstarct.Presentable;
-import com.example.santa.anative.util.algorithm.RealmSecure;
+import com.example.santa.anative.ui.common.Presentable;
+import com.example.santa.anative.util.realm.RealmSecure;
+
+import io.realm.Realm;
+import io.realm.RealmChangeListener;
+import io.realm.RealmResults;
 
 /**
  * Created by santa on 26.03.17.
@@ -13,14 +16,33 @@ import com.example.santa.anative.util.algorithm.RealmSecure;
 class MainPresenter implements Presentable {
 
     private MainView mMainView;
-    private EquipmentRepository mEquipmentRepository;
-    private PackageRepository mPackageRepository;
+    private Realm mRealm;
 
     MainPresenter(MainView mainView) {
         mMainView = mainView;
     }
 
     public void onCreate() {
-
+        mRealm = RealmSecure.getDefault();
+        mMainView.showEquipment(getEquipments());
     }
+
+    @Override
+    public void onDestroy() {
+        mRealm.close();
+    }
+
+    private RealmResults<Equipment> getEquipments() {
+        RealmResults<Equipment> equipments = EquipmentRepository.getEquipments(mRealm);
+        equipments.addChangeListener(new RealmChangeListener<RealmResults<Equipment>>() {
+            @Override
+            public void onChange(RealmResults<Equipment> element) {
+                mMainView.updateEquipments();
+            }
+        });
+        return equipments;
+    }
+
+
+
 }

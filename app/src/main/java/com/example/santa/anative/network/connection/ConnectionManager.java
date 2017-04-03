@@ -19,9 +19,4 @@ public class ConnectionManager {
         return new Connection(host, port);
     }
 
-    public Connection create(String host, int port, ConnectionDelegate connectionDelegate) {
-        return new Connection(host, port, connectionDelegate);
-
-    }
-
 }

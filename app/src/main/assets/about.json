@@ -1,0 +1,1 @@
+{"text" : "There are some important restrictions to be aware of when using Parceler: If you model contains a RealmList you need to register a special adapter.Once an object has been parcelled, it becomes detached from Realm and at this point behaves like an unmanaged object containing a snapshot of the data. Further changes to this object will not be persisted in Realm."}

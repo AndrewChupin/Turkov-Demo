@@ -13,27 +13,21 @@ import io.realm.RealmConfiguration;
 
 public class ProfileRepository {
 
-    private Realm mRealm;
-
-    public ProfileRepository(RealmConfiguration configurations) {
-        mRealm = Realm.getInstance(configurations);
-    }
-
-    public Profile getProfile() {
-        Profile user = mRealm.where(Profile.class).findFirst();
+    public static Profile getProfile(Realm realm) {
+        Profile user = realm.where(Profile.class).findFirst();
         if (user == null) {
-            mRealm.beginTransaction();
-            user = mRealm.createObject(Profile.class, UUID.randomUUID().toString());
-            mRealm.commitTransaction();
+            realm.beginTransaction();
+            user = realm.createObject(Profile.class, UUID.randomUUID().toString());
+            realm.commitTransaction();
         }
         return user;
     }
 
-    public void updateProfile(final Profile profile) {
-        mRealm.executeTransactionAsync(new Realm.Transaction() {
+    public static void updateProfile(Realm realm, final Profile profile) {
+        realm.executeTransactionAsync(new Realm.Transaction() {
             @Override
             public void execute(Realm realm) {
-                mRealm.copyToRealmOrUpdate(profile);
+                realm.copyToRealmOrUpdate(profile);
             }
         }, new Realm.Transaction.OnError() {
             @Override

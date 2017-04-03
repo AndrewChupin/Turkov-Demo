@@ -2,6 +2,7 @@ package com.example.santa.anative.ui.equipment.detail;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.annotation.StringRes;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.AppCompatSpinner;
@@ -13,12 +14,15 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.example.santa.anative.R;
+import com.example.santa.anative.model.entity.Equipment;
 import com.example.santa.anative.model.entity.Error;
-import com.example.santa.anative.ui.equipment.setting.EditEquipmentActivity;
+import com.example.santa.anative.ui.equipment.edit.EditEquipmentActivity;
 import com.example.santa.anative.ui.equipment.schedule.ScheduleActivity;
 import com.example.santa.anative.widget.adapter.pager.ErrorPager;
+import com.example.santa.anative.widget.adapter.recycler.EquipmentAdapter;
 import com.example.santa.anative.widget.adapter.recycler.ExpandErrorAdapter;
 import com.example.santa.anative.widget.adapter.recycler.MySpinnerAdapter;
 import com.example.santa.anative.widget.adapter.recycler.utils.ItemClickSupport;
@@ -30,7 +34,7 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 
-public class EquipmentActivity extends AppCompatActivity {
+public class EquipmentActivity extends AppCompatActivity implements EquipmentView {
 
     @BindView(R.id.toolbar_title) TextView mTvTitleEquipment;
     @BindView(R.id.toolbar_equipment) Toolbar mToolbarEquipment;
@@ -40,7 +44,11 @@ public class EquipmentActivity extends AppCompatActivity {
     @BindView(R.id.spinner_ventilation_speed) AppCompatSpinner mVentilationSpeed;
     @BindView(R.id.spinner_ventilation_temperature) AppCompatSpinner mVentilationTemperature;
 
+    public static final String EXTRA_EQUIPMENT_ID = "equipmentId";
+
     private ArrayList<Error> mErrorList;
+    private EquipmentPresenter equipmentPresenter;
+    private Equipment mEquipment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -52,6 +60,8 @@ public class EquipmentActivity extends AppCompatActivity {
         initializeSpinners();
         initializeErrorList();
         initializeErrorPager();
+        initializePresenter();
+        showEquipmentDetail();
     }
 
     @Override
@@ -67,6 +77,11 @@ public class EquipmentActivity extends AppCompatActivity {
         mToolbarEquipment.inflateMenu(R.menu.edit_equipment);
         if (getSupportActionBar() != null) getSupportActionBar()
                 .setDisplayHomeAsUpEnabled(true);
+    }
+
+    private void initializePresenter() {
+        equipmentPresenter = new EquipmentPresenter(this);
+        equipmentPresenter.onCreate();
     }
 
     private void initializeSpinners() {
@@ -89,7 +104,6 @@ public class EquipmentActivity extends AppCompatActivity {
 
     private void initializeErrorList() {
         mErrorList = new ArrayList<>();
-
 
         ExpandErrorAdapter adapter = new ExpandErrorAdapter(this, mErrorList);
         mRvErrorList.setAdapter(adapter);
@@ -115,8 +129,20 @@ public class EquipmentActivity extends AppCompatActivity {
     }
 
 
+    public void showEquipmentDetail() {
+        int equipmentId = getIntent().getIntExtra(EXTRA_EQUIPMENT_ID, -1);
+        mEquipment = equipmentPresenter.onFindEquipment(equipmentId);
+
+        if (mEquipment == null) {
+            showMessage(R.string.incorrect_equipment_id);
+            onBackPressed();
+        }
+        // TODO
+    }
+
+
     @OnClick(R.id.tv_expand_header)
-    void onShowErrorList() {
+    void onChangeErrorsVisibility() {
         if (mRvErrorList.getVisibility() == View.VISIBLE) mRvErrorList.setVisibility(View.GONE);
         else mRvErrorList.setVisibility(View.VISIBLE);
     }
@@ -125,6 +151,7 @@ public class EquipmentActivity extends AppCompatActivity {
     @OnClick(R.id.fl_equipment_schedule)
     void onShowEquipmentSchedule() {
         Intent intent = new Intent(this, ScheduleActivity.class);
+        intent.putExtra(EquipmentActivity.EXTRA_EQUIPMENT_ID, mEquipment.getId());
         startActivity(intent);
     }
 
@@ -142,12 +169,12 @@ public class EquipmentActivity extends AppCompatActivity {
     }
 
 
-
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.menu_edit_equipment:
                 Intent intent = new Intent(this, EditEquipmentActivity.class);
+                intent.putExtra(EquipmentActivity.EXTRA_EQUIPMENT_ID, mEquipment.getId());
                 startActivity(intent);
                 return true;
             case android.R.id.home:
@@ -163,5 +190,17 @@ public class EquipmentActivity extends AppCompatActivity {
         if (mFlPagerContainer.getVisibility() == View.VISIBLE) {
             mFlPagerContainer.setVisibility(View.GONE);
         } else super.onBackPressed();
+    }
+
+
+    @Override
+    public void showMessage(@StringRes int message) {
+        Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        equipmentPresenter.onDestroy();
     }
 }

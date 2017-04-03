@@ -3,6 +3,7 @@ package com.example.santa.anative.util.algorithm;
 import android.util.Base64;
 
 import com.example.santa.anative.application.Configurations;
+import com.example.santa.anative.util.common.ByteHelper;
 
 import java.math.BigInteger;
 import java.nio.ByteBuffer;
@@ -22,15 +23,19 @@ import static com.example.santa.anative.application.Configurations.MASK;
 
 public class AlgorithmUtils {
     // TODO Generate Mask
-    public static String generateAbilitiesMask() {
+    public static byte[] generateAbilitiesMask() {
         //String value = new BigInteger(Configurations.MASK , 2).toString(16);
-        return String.format("%08x", MASK);
+        return ByteHelper.hexStringToByteArray(String.format("%08X", MASK));
     }
 
     public static int generateSecureRandom() {
         SecureRandom secureRandom = new SecureRandom();
         int intMax = Integer.MAX_VALUE;
         return secureRandom.nextInt(intMax);
+    }
+
+    public static byte[] generateHexArrayRandom(int random) {
+        return ByteHelper.hexStringToByteArray(String.format("%08X", random));
     }
 
 }

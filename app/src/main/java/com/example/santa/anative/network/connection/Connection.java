@@ -2,8 +2,13 @@ package com.example.santa.anative.network.connection;
 
 import android.util.Log;
 
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
@@ -17,12 +22,12 @@ import java.net.Socket;
 public class Connection {
 
     public int id;
-    private String serverMessage;
+    private byte[] serverMessage;
     private String mHost;
     private int mPort;
     private ConnectionDelegate mConnectionDelegate;
     private boolean isConnected = false;
-
+    private BufferedOutputStream mBufferedOutputStream;
     private PrintWriter out;
 
 
@@ -50,18 +55,19 @@ public class Connection {
             Socket socket = new Socket(serverAddress, mPort);
 
             try {
-                //send the message to the server
-                out = new PrintWriter(new BufferedWriter(new OutputStreamWriter(socket.getOutputStream())), true);
+                // receive the message which the server sends back
+                BufferedInputStream bufferedInputStream = new BufferedInputStream(socket.getInputStream());
+
+                // send the message to the server
+                mBufferedOutputStream = new BufferedOutputStream(socket.getOutputStream());
 
                 Log.d("TCP Client", "C: Sent.");
                 Log.d("TCP Client", "C: Done.");
 
-                //receive the message which the server sends back
-                BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-
                 //in this while the client listens for the messages sent by the server
                 while (isConnected) {
-                    serverMessage = in.readLine();
+                    serverMessage = new byte[1024];
+                    int i = bufferedInputStream.read(serverMessage);
 
                     if (serverMessage != null && mConnectionDelegate != null) {
                         //call the method messageReceived from MyActivity class
@@ -71,23 +77,16 @@ public class Connection {
                     serverMessage = null;
 
                 }
-
                 Log.d("RESPONSE FROM SERVER", "S: Received Message: '" + serverMessage + "'");
-
             } catch (Exception e) {
-
                 Log.d("TCP", "S: Error", e);
-
             } finally {
                 //the socket must be closed. It is not possible to reconnect to this socket
                 // after it is closed, which means a new socket instance has to be created.
                 socket.close();
             }
-
         } catch (Exception e) {
-
             Log.d("TCP", "C: Error", e);
-
         }
     }
 
@@ -95,11 +94,15 @@ public class Connection {
      * Sends the message entered by client to the server
      * @param message text entered by client
      */
-    public void sendMessage(String message){
-        if (out != null && !out.checkError()) {
-            Log.d("Logos", "Connection | sendMessage: " + message);
-            out.println(message);
-            out.flush();
+    public void sendMessage(byte[] message){
+        if (mBufferedOutputStream != null) {
+            Log.d("Logos", "Connection | sendMessage: " + new String(message));
+            try {
+                mBufferedOutputStream.write(message);
+                mBufferedOutputStream.flush();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
     }
 

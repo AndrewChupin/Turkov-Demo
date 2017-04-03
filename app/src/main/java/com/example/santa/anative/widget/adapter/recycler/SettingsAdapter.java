@@ -14,10 +14,9 @@ import com.example.santa.anative.R;
 import com.example.santa.anative.model.entity.Setting;
 import com.example.santa.anative.ui.equipment.setting.SettingEquipmentActivity;
 
-import java.util.ArrayList;
-
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import io.realm.RealmList;
 
 /**
  * Created by santa on 11.03.17.
@@ -25,10 +24,10 @@ import butterknife.ButterKnife;
 
 public class SettingsAdapter extends RecyclerView.Adapter<SettingsAdapter.SettingsViewHolder> {
 
-    private ArrayList<Setting> mSettings;
+    private RealmList<Setting> mSettings;
     private Context mContext;
 
-    public SettingsAdapter(Context context, ArrayList<Setting> settings) {
+    public SettingsAdapter(Context context, RealmList<Setting> settings) {
         mContext = context;
         mSettings = settings;
     }
@@ -66,7 +65,9 @@ public class SettingsAdapter extends RecyclerView.Adapter<SettingsAdapter.Settin
             itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    mContext.startActivity(new Intent(mContext , SettingEquipmentActivity.class));
+                    Intent intent = new Intent(mContext , SettingEquipmentActivity.class);
+                    intent.putExtra(SettingEquipmentActivity.EXTRA_SETTING_ID, mSettings.get(getAdapterPosition()).getId());
+                    mContext.startActivity(intent);
                 }
             });
         }

@@ -7,5 +7,5 @@ package com.example.santa.anative.network.common;
 public interface Service {;
     void onStart();
     void onStop();
-    Service onSubscribe(Observer observer);
+    void onSubscribe(Observer observer);
 }

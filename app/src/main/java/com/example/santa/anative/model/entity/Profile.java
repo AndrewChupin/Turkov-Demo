@@ -5,10 +5,8 @@ import java.util.Locale;
 
 import io.realm.RealmList;
 import io.realm.RealmModel;
-import io.realm.RealmObject;
 import io.realm.annotations.PrimaryKey;
 import io.realm.annotations.RealmClass;
-import io.realm.annotations.RealmModule;
 
 /**
  * Created by santa on 09.03.17.
@@ -41,8 +39,8 @@ public class Profile implements RealmModel {
     private int lastSessionTime;
     private int registrationTime;
 
-
     private RealmList<Equipment> equipments;
+
 
     public int getClientId() {
         return clientId;
@@ -205,8 +203,7 @@ public class Profile implements RealmModel {
     }
 
     public String generateId() {
-        Formatter id = new Formatter();
-        id.format(Locale.ENGLISH, "%s#%s", email, deviceId);
-        return id.toString();
+        return String.format(Locale.ENGLISH, "%s#%s", email, deviceId);
     }
+
 }

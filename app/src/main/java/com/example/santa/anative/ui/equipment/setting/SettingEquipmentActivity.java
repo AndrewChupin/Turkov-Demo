@@ -1,5 +1,6 @@
 package com.example.santa.anative.ui.equipment.setting;
 
+import android.support.annotation.StringRes;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
@@ -8,22 +9,33 @@ import android.widget.Spinner;
 import android.widget.TextView;
 
 import com.example.santa.anative.R;
+import com.example.santa.anative.model.entity.Setting;
 import com.example.santa.anative.widget.adapter.recycler.MySpinnerAdapter;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Set;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import butterknife.OnClick;
 
-public class SettingEquipmentActivity extends AppCompatActivity {
+import static com.example.santa.anative.ui.equipment.detail.EquipmentActivity.EXTRA_EQUIPMENT_ID;
+
+public class SettingEquipmentActivity extends AppCompatActivity implements SettingEquipmentView {
+
+    public static final String EXTRA_SETTING_ID = "settingId";
 
     @BindView(R.id.toolbar_title) TextView mTitleSetting;
     @BindView(R.id.toolbar_setting) Toolbar mToolbarSetting;
+
     @BindView(R.id.spinner_schedule_temperature) Spinner mSpinnerTemperature;
     @BindView(R.id.spinner_schedule_speed) Spinner mSpinnerSpeed;
     @BindView(R.id.spinner_schedule_hours) Spinner mSpinnerHours;
     @BindView(R.id.spinner_schedule_minutes) Spinner mSpinnerMinutes;
+
+    private SettingEquipmentPresenter mSettingEquipmentPresenter;
+    private Setting mSetting;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -32,6 +44,8 @@ public class SettingEquipmentActivity extends AppCompatActivity {
         ButterKnife.bind(this);
         initializeToolbar();
         initializeSpinners();
+        initializePresenter();
+        showSettingInfo();
     }
 
     private void initializeToolbar() {
@@ -41,6 +55,17 @@ public class SettingEquipmentActivity extends AppCompatActivity {
         mToolbarSetting.inflateMenu(R.menu.edit_equipment);
         if (getSupportActionBar() != null) getSupportActionBar()
                 .setDisplayHomeAsUpEnabled(true);
+    }
+
+    private void initializePresenter() {
+        mSettingEquipmentPresenter = new SettingEquipmentPresenter(this);
+        mSettingEquipmentPresenter.onCreate();
+    }
+
+    private void showSettingInfo() {
+        int settingId = getIntent().getIntExtra(EXTRA_SETTING_ID, -1);
+        mSetting = mSettingEquipmentPresenter.getSettingById(settingId);
+        //TODO SETTiNG INFO
     }
 
     private void initializeSpinners() {
@@ -77,6 +102,13 @@ public class SettingEquipmentActivity extends AppCompatActivity {
         mSpinnerMinutes.setAdapter(minutesAdapter);
     }
 
+
+    @OnClick(R.id.btn_save_setting)
+    void onSaveSetting() {
+        mSettingEquipmentPresenter.sendSetting(mSetting);
+    }
+
+
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
@@ -85,5 +117,27 @@ public class SettingEquipmentActivity extends AppCompatActivity {
                 return true;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public void showMessage(@StringRes int res) {
+
+    }
+
+    @Override
+    public void showDialog() {
+
+    }
+
+    @Override
+    public void hideDialog() {
+
+    }
+
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        mSettingEquipmentPresenter.onDestroy();
     }
 }

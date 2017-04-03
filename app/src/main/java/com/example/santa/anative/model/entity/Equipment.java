@@ -18,10 +18,11 @@ public class Equipment implements RealmModel {
     @Ignore
     public static final int CONVECTOR = 1;
     @Ignore
-    public static final int DEHUMODOFIER = 2;
+    public static final int DESICCANT = 2;
 
     @PrimaryKey
     private int id;
+    private String title;
     private String name;
     private int type;
     private int pin;
@@ -42,6 +43,14 @@ public class Equipment implements RealmModel {
     private RealmList<Setting> settings;
     private RealmList<Error> errors;
 
+
+    public String getTitle() {
+        return title;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
+    }
 
     public int getId() {
         return id;
@@ -170,4 +179,5 @@ public class Equipment implements RealmModel {
     public void setErrors(RealmList<Error> errors) {
         this.errors = errors;
     }
+
 }

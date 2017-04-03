@@ -33,17 +33,15 @@
 
             </LinearLayout>
 
-            <EditText
-                android:id="@+id/tv_profile_surname"
-                android:hint="@string/equipment_name"
-                android:inputType="textCapSentences"
-                android:layout_width="match_parent"
+            <android.support.v7.widget.AppCompatSpinner
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/et_top_margin"
-                style="@style/WhiteEditText"/>
+                android:id="@+id/spinner_additional_name"
+                android:background="@drawable/shape_spinner_static"
+                android:popupBackground="@drawable/shape_dropbox_background"/>
 
             <EditText
-                android:id="@+id/tv_profile_name"
+                android:id="@+id/et_equipment_pin_code"
                 android:hint="@string/pin_code"
                 android:inputType="textCapSentences"
                 android:layout_width="match_parent"
@@ -51,7 +49,7 @@
                 style="@style/WhiteEditText"/>
 
             <EditText
-                android:id="@+id/tv_profile_patronymic"
+                android:id="@+id/et_equipment_serial"
                 android:inputType="textCapSentences"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -66,7 +64,7 @@
 
                 <Button
                     android:text="@string/save"
-                    android:id="@+id/btn_send_registration_data"
+                    android:id="@+id/btn_create_equipment"
                     android:layout_alignParentTop="true"
                     android:layout_alignParentEnd="true"
                     style="@style/SendButton"/>

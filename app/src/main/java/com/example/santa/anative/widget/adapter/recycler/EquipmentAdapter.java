@@ -26,6 +26,7 @@ import io.realm.RealmResults;
 
 public class EquipmentAdapter extends RecyclerView.Adapter<EquipmentAdapter.EquipmentViewHolder> {
 
+
     private RealmResults<Equipment> mEquipmentList;
     private Context mContext;
 
@@ -34,11 +35,13 @@ public class EquipmentAdapter extends RecyclerView.Adapter<EquipmentAdapter.Equi
         mEquipmentList = equipmentList;
     }
 
+
     @Override
     public EquipmentViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_equipment, parent, false);
         return new EquipmentViewHolder(view);
     }
+
 
     @Override
     public void onBindViewHolder(EquipmentViewHolder holder, int position) {
@@ -48,10 +51,12 @@ public class EquipmentAdapter extends RecyclerView.Adapter<EquipmentAdapter.Equi
         if (mEquipmentList.get(position).isEnable()) holder.mSwitcher.setChecked(true);
     }
 
+
     @Override
     public int getItemCount() {
         return mEquipmentList.size();
     }
+
 
     class EquipmentViewHolder extends RecyclerView.ViewHolder {
 
@@ -67,7 +72,9 @@ public class EquipmentAdapter extends RecyclerView.Adapter<EquipmentAdapter.Equi
 
         @OnClick(R.id.cv_equipment_item)
         void onDetailEquipment() {
-            mContext.startActivity(new Intent(mContext , EquipmentActivity.class));
+            Intent intent = new Intent(mContext , EquipmentActivity.class);
+            intent.putExtra(EquipmentActivity.EXTRA_EQUIPMENT_ID, mEquipmentList.get(getAdapterPosition()).getId());
+            mContext.startActivity(intent);
         }
     }
 }

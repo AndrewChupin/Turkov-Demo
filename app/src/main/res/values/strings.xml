@@ -74,6 +74,7 @@
     <string name="incorrect_response">Некорректный ответ сервера!</string>
     <string name="incorrect_password">Некорректный пароль!</string>
     <string name="incorrect_code">Некорректный код!</string>
+    <string name="incorrect_equipment_id">Оборудование не найдено!</string>
     <string name="incorrect_email">Такого Email не существует!</string>
     <string name="user_exist">Пользователь уже существует!</string>
     <string name="code_failure">Не удалось отправить код!</string>

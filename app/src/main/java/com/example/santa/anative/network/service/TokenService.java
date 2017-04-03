@@ -11,7 +11,7 @@ import com.example.santa.anative.network.connection.ConnectionDelegate;
 import com.example.santa.anative.network.common.Observer;
 import com.example.santa.anative.network.common.Service;
 import com.example.santa.anative.util.algorithm.HkdfSha1;
-import com.example.santa.anative.util.algorithm.RealmSecure;
+import com.example.santa.anative.util.realm.RealmSecure;
 import com.example.santa.anative.util.algorithm.StreamCrypt;
 import com.example.santa.anative.util.common.ByteArray;
 import com.example.santa.anative.util.common.ByteHelper;
@@ -23,6 +23,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Formatter;
 import java.util.Locale;
+
+import io.realm.Realm;
 
 /**
  * Created by santa on 18.03.17.
@@ -45,55 +47,94 @@ public class TokenService extends AsyncTask<Void, Integer, Void> implements Serv
     private static final String CLIENT_NEW_MESSAGE = "E";
 
 
-    public TokenService(Connection connection) {
+    /**
+     * Изициализирует нвоый экземпляр класса TokenService
+     * Сохраняет ссылки на объекты Profile и Constructor и привязывает дегеируемые функции
+     * соединения с соединению
+     * @param connection ссылка на новое соединение с сервером
+     * @param profile профиль пользователя
+     */
+    public TokenService(Connection connection, Profile profile) {
         mConnection = connection;
         mConnection.attachDelegate(this);
-    }
-
-    // Override Service
-    @Override
-    public void onStart() {
-        this.execute();
-    }
-
-    @Override
-    public void onStop() {
-        cancel(true);
-        mConnection.stopClient();
-    }
-
-    @Override
-    public Service onSubscribe(Observer observer) {
-        mObserver = observer;
-        return this;
+        mProfile = profile;
     }
 
 
-    // Override AsyncTask
+    /**
+     *  Override from AsyncTask
+     *  @see AsyncTask
+     */
     @Override
     protected Void doInBackground(Void... params) {
         mConnection.start();
         return null;
     }
 
+
+    /**
+     *  Override from AsyncTask
+     *  @see AsyncTask
+     */
     @Override
     protected void onProgressUpdate(Integer... values) {
         super.onProgressUpdate(values);
         if (mObserver != null) mObserver.onError(values[0]);
     }
 
+
+    /**
+     *  Override from AsyncTask
+     *  @see AsyncTask
+     */
     @Override
     protected void onPostExecute(Void aVoid) {
         super.onPostExecute(aVoid);
-        ProfileRepository profileRepository = new ProfileRepository(RealmSecure.getDefault());
-        profileRepository.updateProfile(mProfile);
+        Realm realm = RealmSecure.getDefault();
+        ProfileRepository.updateProfile(realm, mProfile);
+        realm.close();
         if (mObserver != null) mObserver.onComplete();
     }
 
-    // Override ConnectionDelegate
+
+    /**
+     *  Override from Service
+     *  @see Service
+     */
     @Override
-    public void messageReceived(String response) {
-        String[] sessionParams = response.split("\\s+");
+    public void onStart() {
+        this.execute();
+    }
+
+
+    /**
+     *  Override from Service
+     *  @see Service
+     */
+    @Override
+    public void onStop() {
+        cancel(true);
+        mConnection.stopClient();
+    }
+
+
+    /**
+     *  Override from Service
+     *  @see Service
+     */
+    @Override
+    public void onSubscribe(Observer observer) {
+        mObserver = observer;
+    }
+
+
+    /**
+     *  Override from ConnectionDelegate
+     *  @see ConnectionDelegate
+     */
+    @Override
+    public void messageReceived(byte[] response) {
+        String[] sessionParams = new String(response).split("\\s+");
         switch (sessionParams[0]) {
             case SERVER_HELLO_MESSAGE:
                 startTokenProtocol(sessionParams[1]);
@@ -110,6 +151,7 @@ public class TokenService extends AsyncTask<Void, Integer, Void> implements Serv
         }
     }
 
+
     /**
      *
      * Данный метод проверяет имя сервера,
@@ -121,13 +163,23 @@ public class TokenService extends AsyncTask<Void, Integer, Void> implements Serv
         if (!Validate.isNullOrEmpty(serverName) && serverName.equals(Configurations.SERVER_NAME)) {
 
             ByteArray array = new ByteArray();
-            String mask = AlgorithmUtils.generateAbilitiesMask();
-            array.appendWithSplit(ByteHelper.COMMA, mask.getBytes(), mProfile.getSessionId(), mProfile.getToken());
 
-            mConnection.sendMessage(generateSessionRequest(
+            array.appendWithSplit(ByteHelper.COMMA,
+                    AlgorithmUtils.generateAbilitiesMask(),
+                    mProfile.getSessionId(),
+                    mProfile.getToken());
+
+            ByteArray response = new ByteArray();
+            response.appendWithSplit(ByteHelper.SPACE,
+                    CLIENT_HELLO_TOKEN.getBytes(),
+                    Base64.encode(array.array(), Base64.DEFAULT))
+                    .append(ByteHelper.NL);
+            mConnection.sendMessage(response.array());
+
+            /*mConnection.sendMessage(generateSessionRequest(
                     CLIENT_HELLO_TOKEN,
                     new String(Base64.encode(array.array(), Base64.DEFAULT)
-                    )));
+                    )));*/
 
         } else publishProgress(ServiceError.ERROR_RESPONSE);
     }
@@ -145,9 +197,14 @@ public class TokenService extends AsyncTask<Void, Integer, Void> implements Serv
         return request.toString();
     }
 
+
     /**
+     * Данный метод принимает новые параметры сессии от сервера, производит их валидацию и на их основе
+     * дешифрует проверочное число, входящее в состав параметров, декрементированное на 1 единицу
+     * и полсывает его обратно на сервер в зашифрованном виде.
      *
-     *
+     * В случае инвалидных параметров, выбрасывается ошибка с кодом ERROR_RESPONSE
+     * @param params новые параметры сессии полученные от сервера
      */
     private void startNewParamProtocol(String params) {
         if (!Validate.isNullOrEmpty(params)) {
@@ -181,16 +238,23 @@ public class TokenService extends AsyncTask<Void, Integer, Void> implements Serv
             byte[] cnkCrypt = StreamCrypt.encrypt(mProfile.getKeyFirst(), mProfile.getKeySecond(),
                     String.valueOf(cnkNew).getBytes());
 
+            ByteArray response = new ByteArray();
+            response.appendWithSplit(ByteHelper.SPACE,
+                    CLIENT_NEW_MESSAGE.getBytes(),
+                    Base64.encode(cnkCrypt, Base64.DEFAULT))
+                    .append(ByteHelper.NL);
+            mConnection.sendMessage(response.array());
 
-            String s = AlgorithmUtils.generateAbilitiesMask();
+        /*//  String s = AlgorithmUtils.generateAbilitiesMask();
             mConnection.sendMessage(generateTestMessage(
                     CLIENT_NEW_MESSAGE,
                     new String(Base64.encode(cnkCrypt, Base64.DEFAULT)
-                    )));
+                    )));*/
 
         } else publishProgress(ServiceError.ERROR_RESPONSE);
 
     }
+
 
     /**
      *

@@ -4,7 +4,7 @@ package com.example.santa.anative.util.network.reister;
  * Created by santa on 22.03.17.
  */
 
-public class Equipment {
+public final class Equipment {
 
     private static final int EQUIPMENT_ID = 0x0000; // Уникальный идентификатор объекта (целое/32)
     private static final int EQUIPMENT_TYPE = 0x1001; // Тип объекта (целое/16)

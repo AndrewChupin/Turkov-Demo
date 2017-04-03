@@ -4,7 +4,7 @@ package com.example.santa.anative.util.network;
  * Created by santa on 20.03.17.
  */
 
-public class Addresses {
+public final class Addresses {
 
     private static final int PROFILE_TECH = 0x00000101;
     private static final int PROFILE_EQUIPMENT = 0x00000102;

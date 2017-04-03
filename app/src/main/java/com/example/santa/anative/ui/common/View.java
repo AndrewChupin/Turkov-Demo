@@ -1,4 +1,4 @@
-package com.example.santa.anative.ui.abstarct;
+package com.example.santa.anative.ui.common;
 
 /**
  * Created by santa on 17.03.17.

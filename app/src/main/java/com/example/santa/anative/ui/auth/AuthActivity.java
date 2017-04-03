@@ -14,6 +14,7 @@ import com.example.santa.anative.R;
 import com.example.santa.anative.ui.main.MainActivity;
 import com.example.santa.anative.ui.registration.RegistrationActivity;
 import com.example.santa.anative.ui.reset.ResetActivity;
+import com.example.santa.anative.util.common.Validate;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -34,6 +35,7 @@ public class AuthActivity extends AppCompatActivity implements AuthView {
     private AuthPresenter authPresenter;
     private ProgressDialog mProgressDialog;
 
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -43,10 +45,12 @@ public class AuthActivity extends AppCompatActivity implements AuthView {
         initializeDialog();
     }
 
+
     private void initializePresenter() {
         authPresenter = new AuthPresenter(this);
         authPresenter.onCreate();
     }
+
 
     private void initializeDialog() {
         mProgressDialog = new ProgressDialog(this);
@@ -54,11 +58,13 @@ public class AuthActivity extends AppCompatActivity implements AuthView {
         mProgressDialog.setCancelable(false);
     }
 
+
     @OnClick(R.id.btn_registration)
     void onStartRegistration() {
         Intent intent = new Intent(this, RegistrationActivity.class);
         startActivityForResult(intent, REGISTRATION_CODE);
     }
+
 
     @OnClick(R.id.tv_forgot_password)
     void onStartResetPassword() {
@@ -66,18 +72,14 @@ public class AuthActivity extends AppCompatActivity implements AuthView {
         startActivityForResult(intent, RESET_CODE);
     }
 
+
     @OnClick(R.id.btn_sign_in)
     void onStartAuthorization() {
-        // TODO LOGIC
-        String email = mEtPass.getText().toString();
-        if (email.contains("@") && email.contains(".")) {
-            authPresenter.onAuthorizePassword(mEtEmail.getText().toString(),
-                    mEtPass.getText().toString().getBytes());
-            mEtPass.setText(R.string.empty);
-        } else {
-            showError(R.string.incorrect_email);
-        }
+        authPresenter.onAuthorizePassword(mEtEmail.getText().toString(),
+                mEtPass.getText().toString().getBytes());
+        mEtPass.setText(R.string.empty);
     }
+
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -86,39 +88,46 @@ public class AuthActivity extends AppCompatActivity implements AuthView {
                 case RESET_CODE:
                 case REGISTRATION_CODE:
                     String email = data.getStringExtra(EMAIL);
-                    if (email != null) mEtEmail.setText(email);
+                    if (!Validate.isNullOrEmpty(email)) mEtEmail.setText(email);
                     break;
             }
         }
     }
 
+
     @Override
-    public void showError(@StringRes int id) {
+    public void showMessage(@StringRes int id) {
         mTvError.setVisibility(View.VISIBLE);
         mTvError.setText(id);
     }
+
 
     @Override
     public void showDialog() {
         mProgressDialog.show();
     }
 
+
     @Override
     public void hideDialog() {
         mProgressDialog.dismiss();
     }
 
+
     @Override
     public void onStartMain() {
         Intent intent = new Intent(this, MainActivity.class);
         startActivity(intent);
+        finish();
     }
+
 
     @Override
     public void showAuthorizationForm() {
         mLlAuthFrom.setVisibility(View.VISIBLE);
         mLlAuthFrom.animate().alpha(1).setDuration(2000).start();
     }
+
 
     @Override
     protected void onDestroy() {

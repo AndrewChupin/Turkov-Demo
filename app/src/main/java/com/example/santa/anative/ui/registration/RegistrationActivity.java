@@ -95,7 +95,7 @@ public class RegistrationActivity extends AppCompatActivity implements Registrat
     }
 
     @Override
-    public void showError(@StringRes int res) {
+    public void showMessage(@StringRes int res) {
         Toast.makeText(this, res, Toast.LENGTH_SHORT).show();
     }
 
@@ -115,6 +115,7 @@ public class RegistrationActivity extends AppCompatActivity implements Registrat
     @Override
     protected void onDestroy() {
         super.onDestroy();
+        mRegistrationPresenter.onDestroy();
         mProgressDialog.cancel();
     }
 }

@@ -12,5 +12,5 @@ public interface ConnectionDelegate {
      * протокол(стратегию) для дальнейшего поведелния
      * @param response сообщение сервера
      */
-    void messageReceived(String response);
+    void messageReceived(byte[] response);
 }

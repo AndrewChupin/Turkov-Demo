@@ -99,7 +99,7 @@ public class ResetActivity extends AppCompatActivity implements ResetView {
 
 
     @Override
-    public void showError(@StringRes int res) {
+    public void showMessage(@StringRes int res) {
         Toast.makeText(this, res, Toast.LENGTH_SHORT).show();
     }
 
@@ -129,5 +129,6 @@ public class ResetActivity extends AppCompatActivity implements ResetView {
     protected void onDestroy() {
         super.onDestroy();
         mProgressDialog.cancel();
+        mResetPresenter.onDestroy();
     }
 }

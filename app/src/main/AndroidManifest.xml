@@ -10,7 +10,7 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <activity
-            android:name=".ui.common.TestActivity"
+            android:name=".ui.TestActivity"
             android:windowSoftInputMode="adjustResize|stateAlwaysHidden">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
@@ -24,7 +24,7 @@
         </activity>
         <activity android:name=".ui.main.MainActivity">
         </activity>
-        <activity android:name=".ui.common.AboutActivity">
+        <activity android:name=".ui.about.AboutActivity">
         </activity>
         <activity android:name=".ui.profile.ProfileActivity">
         </activity>
@@ -39,7 +39,7 @@
             android:name=".ui.registration.RegistrationActivity"
             android:windowSoftInputMode="adjustResize|stateAlwaysHidden">
         </activity>
-        <activity android:name=".ui.equipment.setting.EditEquipmentActivity">
+        <activity android:name=".ui.equipment.edit.EditEquipmentActivity">
         </activity>
     </application>
 

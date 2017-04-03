@@ -20,7 +20,7 @@ import android.widget.TextView;
 
 import com.example.santa.anative.R;
 import com.example.santa.anative.model.entity.Equipment;
-import com.example.santa.anative.ui.common.AboutActivity;
+import com.example.santa.anative.ui.about.AboutActivity;
 import com.example.santa.anative.ui.equipment.addition.AdditionEquipmentActivity;
 import com.example.santa.anative.ui.profile.ProfileActivity;
 import com.example.santa.anative.widget.adapter.recycler.EquipmentAdapter;
@@ -41,6 +41,7 @@ public class MainActivity extends AppCompatActivity implements MainView {
     private ActionBarDrawerToggle mActionBarDrawerToggle;
     private ProgressDialog mProgressDialog;
     private EquipmentAdapter equipmentAdapter;
+    private MainPresenter mainPresenter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -72,14 +73,14 @@ public class MainActivity extends AppCompatActivity implements MainView {
     }
 
     private void initializePresenter() {
-        MainPresenter mainPresenter = new MainPresenter(this);
+        mainPresenter = new MainPresenter(this);
         mainPresenter.onCreate();
     }
 
     private void initializeDialog() {
         mProgressDialog = new ProgressDialog(this);
         mProgressDialog.setCancelable(false);
-        mProgressDialog.setMax(R.string.waiting);
+        mProgressDialog.setTitle(R.string.waiting);
     }
 
 
@@ -115,6 +116,7 @@ public class MainActivity extends AppCompatActivity implements MainView {
                 startActivityIntent = new Intent(this, AboutActivity.class);
                 break;
             case R.id.menu_help:
+                startActivityIntent = new Intent(this, AboutActivity.class);
                 break;
             case R.id.menu_exit:
                 onCloseApplication();
@@ -190,8 +192,9 @@ public class MainActivity extends AppCompatActivity implements MainView {
 
 
     @Override
-    protected void onStop() {
+    protected void onDestroy() {
+        super.onDestroy();
         mProgressDialog.cancel();
-        super.onStop();
+        mainPresenter.onDestroy();
     }
 }

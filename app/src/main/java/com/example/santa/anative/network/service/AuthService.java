@@ -1,6 +1,7 @@
 package com.example.santa.anative.network.service;
 
 import android.os.AsyncTask;
+import android.os.Bundle;
 import android.util.Base64;
 
 import com.example.santa.anative.application.Configurations;
@@ -12,7 +13,7 @@ import com.example.santa.anative.network.common.Observer;
 import com.example.santa.anative.network.common.Service;
 import com.example.santa.anative.util.algorithm.KeyCrypter;
 import com.example.santa.anative.util.algorithm.StreamCrypt;
-import com.example.santa.anative.util.algorithm.RealmSecure;
+import com.example.santa.anative.util.realm.RealmSecure;
 import com.example.santa.anative.util.common.ByteArray;
 import com.example.santa.anative.util.common.ByteHelper;
 import com.example.santa.anative.util.network.ServiceError;
@@ -23,6 +24,8 @@ import com.example.santa.anative.util.common.Validate;
 import java.util.ArrayList;
 import java.util.Formatter;
 import java.util.Locale;
+
+import io.realm.Realm;
 
 /**
  * Created by santa on 28.02.17.
@@ -95,8 +98,9 @@ public class AuthService extends AsyncTask<Void, Object, Void> implements Servic
     @Override
     protected void onPostExecute(Void aVoid) {
         super.onPostExecute(aVoid);
-        ProfileRepository profileRepository = new ProfileRepository(RealmSecure.getDefault());
-        profileRepository.updateProfile(mProfile);
+        Realm realm = RealmSecure.getDefault();
+        ProfileRepository.updateProfile(realm, mProfile);
+        realm.close();
         if (mObserver != null) mObserver.onComplete();
     }
 
@@ -125,9 +129,8 @@ public class AuthService extends AsyncTask<Void, Object, Void> implements Servic
      *  @see Service
      */
     @Override
-    public Service onSubscribe(Observer observer) {
+    public void onSubscribe(Observer observer) {
         mObserver = observer;
-        return this;
     }
 
 
@@ -136,9 +139,9 @@ public class AuthService extends AsyncTask<Void, Object, Void> implements Servic
      *  @see ConnectionDelegate
      */
     @Override
-    public void messageReceived(String response) {
+    public void messageReceived(byte[] response) {
         try {
-            String[] sessionParams = response.split("\\s+");
+            String[] sessionParams = new String(response).split("\\s+");
             switch (sessionParams[0]) {
                 case SERVER_HELLO_MESSAGE:
                     startBeginProtocol(sessionParams[1]);
@@ -171,15 +174,19 @@ public class AuthService extends AsyncTask<Void, Object, Void> implements Servic
      */
     private void startBeginProtocol(String serverName) {
         if (!Validate.isNullOrEmpty(serverName) && serverName.equals(Configurations.SERVER_NAME)) {
-            int key = AlgorithmUtils.generateSecureRandom();
-            mProfile.setRandomKey(String.valueOf(key).getBytes());
-            mConnection.sendMessage(generateSessionRequest(
-                    CLIENT_HELLO_MESSAGE,
-                    email,
-                    mProfile.getDeviceId(),
+            int randomInt = AlgorithmUtils.generateSecureRandom();
+            byte[] random = AlgorithmUtils.generateHexArrayRandom(randomInt);
+            String clientId = String.format(Locale.ENGLISH, "%s#%s", email, mProfile.getDeviceId());
+            mProfile.setRandomKey(ByteHelper.intToByteArray(randomInt)); // TODO TRIM BYTE ARRAY CHECK WHERE TEST
+            ByteArray response = new ByteArray();
+            response.appendWithSplit(ByteHelper.SPACE,
+                    CLIENT_HELLO_MESSAGE.getBytes(),
+                    clientId.getBytes(),
                     AlgorithmUtils.generateAbilitiesMask(),
-                    key
-            ));
+                    random)
+                    .append(ByteHelper.NL);
+
+            mConnection.sendMessage(response.array());
         } else publishProgress(ServiceError.ERROR_RESPONSE);
     }
 
@@ -205,6 +212,7 @@ public class AuthService extends AsyncTask<Void, Object, Void> implements Servic
      * Данный метод проверяет параметры сесии, в зашифрованном виде
      * В случае инвалидности выкидывает ошибку, с кодом, ERROR_RESPONSE
      * Иначе вызывается метод generateConfirmMessage()
+     * params - CAPABILITIES-ACCEPTED, Nkey, Eparams
      * paramsDecode - Ekc(SId,SK1,SK2,T,L)
      * Kс = HKDF(Pc, Rc, NULL, N-KEY)
      * @param sessionParams параметры сессии Base64(ACC,Nkey,Mc)
@@ -212,9 +220,9 @@ public class AuthService extends AsyncTask<Void, Object, Void> implements Servic
     private void startCompareProtocol(String sessionParams) {
         if (!Validate.isNullOrEmpty(sessionParams)) {
             byte[] arr = Base64.decode(sessionParams, Base64.DEFAULT);
-            ArrayList<byte[]> params = ByteHelper.split(arr, ByteHelper.COMMA); // byte ','
+            ArrayList<byte[]> params = ByteHelper.split(arr, ByteHelper.COMMA); // TODO CHECK WHERE TEST
             // TODO WELL CAPABILITIES-ACCEPTED
-            int length = Integer.parseInt(new String(params.get(1))); // TODO WELL BYTE TO INT
+            int length = ByteHelper.byteArrayToInt(params.get(1));
             okm = HkdfSha1.deriveKeyIsl(password, mProfile.getRandomKey(), length);
             // Arrays.fill(password, (byte) 32);
 
@@ -223,20 +231,25 @@ public class AuthService extends AsyncTask<Void, Object, Void> implements Servic
             // Arrays.fill(tempDecode, (byte) 32); // byte 'SPACE'
 
             mProfile.setKeyLength(length);
-            mProfile.setSessionId(paramsDecode.get(0));
-            mProfile.setKeyFirst(paramsDecode.get(1));
-            mProfile.setKeySecond(paramsDecode.get(2));
-            mProfile.setTimestamp(paramsDecode.get(3));
-            mProfile.setSessionTime(paramsDecode.get(4));
+            mProfile.setSessionId(paramsDecode.get(0)); // Sid
+            mProfile.setKeyFirst(paramsDecode.get(1)); // SK1
+            mProfile.setKeySecond(paramsDecode.get(2)); // SK2
+            mProfile.setTimestamp(paramsDecode.get(3)); // T
+            mProfile.setSessionTime(paramsDecode.get(4)); // L
 
-            int timestamp = Integer.parseInt(new String(paramsDecode.get(3))) - 1; // TODO WELL BYTE TO INT
+            int timestamp = ByteHelper.byteArrayToInt(paramsDecode.get(3)) - 1;
             byte[] kc = StreamCrypt.encrypt(mProfile.getKeyFirst(), mProfile.getKeySecond(), String.valueOf(timestamp).getBytes());
             byte[] confirm = Base64.encode(kc, Base64.DEFAULT);
             // for (byte[] temp : paramsDecode) Arrays.fill(temp, (byte) 32);
             // Arrays.fill(kc, (byte) 32);
-            mConnection.sendMessage(generateConfirmMessage(
-                    CLIENT_CONFIRM_MESSAGE,
-                    new String(confirm)));
+
+            ByteArray response = new ByteArray();
+            response.appendWithSplit(ByteHelper.SPACE,
+                    CLIENT_CONFIRM_MESSAGE.getBytes(),
+                    confirm)
+                    .append(ByteHelper.NL);
+
+            mConnection.sendMessage(response.array());
         } else publishProgress(ServiceError.ERROR_RESPONSE);
     }
 

@@ -28,8 +28,8 @@ public class MainService extends AsyncTask<String, Integer, Void> implements Ser
     private Connection mConnection;
     private Observer mObserver;
     private Profile mProfile;
-    public boolean isCode;
-    public RealmResults<Package> mPackages;
+    private Package mPackage;
+    private RealmResults<Package> mPackages;
 
     // Server markers
     private static final String SERVER_HELLO_MESSAGE = "H";
@@ -53,20 +53,39 @@ public class MainService extends AsyncTask<String, Integer, Void> implements Ser
         mConnection.attachDelegate(this);
     }
 
-    // Override AsyncTask
+    public MainService(Connection connection, Package pack) {
+        mConnection = connection;
+        mConnection.attachDelegate(this);
+        mPackage = pack;
+    }
+
+    /**
+     *  Override from AsyncTask
+     *  @see AsyncTask
+     */
     @Override
     protected Void doInBackground(String... params) {
         mConnection.start();
-        mConnection.sendMessage(generateSimpleMessage(CLIENT_START_MESSAGE)); // TODO client-start-protocol-message = "W" "\n" .
+        mConnection.sendMessage(CLIENT_START_MESSAGE.getBytes()); // TODO client-start-protocol-message = "W" "\n" .
         return null;
     }
 
+
+    /**
+     *  Override from AsyncTask
+     *  @see AsyncTask
+     */
     @Override
     protected void onProgressUpdate(Integer... values) {
         super.onProgressUpdate(values);
         if (mObserver != null) mObserver.onError(values[0]);
     }
 
+
+    /**
+     *  Override from AsyncTask
+     *  @see AsyncTask
+     */
     @Override
     protected void onPostExecute(Void aVoid) {
         super.onPostExecute(aVoid);
@@ -74,7 +93,10 @@ public class MainService extends AsyncTask<String, Integer, Void> implements Ser
     }
 
 
-    // Override Service
+    /**
+     *  Override from Service
+     *  @see Service
+     */
     @Override
     public void onStop() {
         if (!isCancelled()) cancel(true);
@@ -82,24 +104,34 @@ public class MainService extends AsyncTask<String, Integer, Void> implements Ser
     }
 
 
+    /**
+     *  Override from Service
+     *  @see Service
+     */
     @Override
     public void onStart() {
         this.execute();
     }
 
 
+    /**
+     *  Override from Service
+     *  @see Service
+     */
     @Override
-    public Service onSubscribe(Observer observer) {
+    public void onSubscribe(Observer observer) {
         mObserver = observer;
-        return this;
     }
 
 
-    // Override ConnectionDelegate
+    /**
+     *  Override from ConnectionDelegate
+     *  @see ConnectionDelegate
+     */
     @Override
-    public void messageReceived(String response) {
+    public void messageReceived(byte[] response) {
         try {
-            String[] sessionParams = response.split("\\s+");
+            String[] sessionParams = new String(response).split("\\s+");
             switch (sessionParams[0]) {
                 // SUCCESS RESPONSE
                 case SERVER_REPORT_QUEUE:
@@ -165,7 +197,7 @@ public class MainService extends AsyncTask<String, Integer, Void> implements Ser
      * Данный протокол срабатывает, при успешной отправке исходящего пакета на серевер,
      * удаляет данные об отправленном пакете и продолжает работу сервиса
      */
-    public void startConfirmProtocol() {
+    private void startConfirmProtocol() {
         startInputProtocol();
     }
 
@@ -212,7 +244,7 @@ public class MainService extends AsyncTask<String, Integer, Void> implements Ser
      * Протокол генерирует и отправляет запрос серверу на отправку входящего пакета
      */
     private void startGetPackProtocol() {
-        mConnection.sendMessage(generateSimpleMessage(CLIENT_GET_DATA));
+        mConnection.sendMessage(CLIENT_GET_DATA.getBytes());
     }
 
     /**

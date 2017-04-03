@@ -16,21 +16,16 @@ import io.realm.RealmResults;
 
 public class EquipmentRepository {
 
-    private Realm mRealm;
 
-    public EquipmentRepository(RealmConfiguration configurations) {
-        mRealm = Realm.getInstance(configurations);
+    public static RealmResults<Equipment> getEquipments(Realm realm) {
+        return realm.where(Equipment.class).findAll();
     }
 
-    public RealmResults<Equipment> getEquipments() {
-        return mRealm.where(Equipment.class).findAll();
-    }
-
-    public void saveEquipment(final Equipment equipment) {
-        mRealm.executeTransactionAsync(new Realm.Transaction() {
+    public static void saveEquipment(Realm realm, final Equipment equipment) {
+        realm.executeTransactionAsync(new Realm.Transaction() {
             @Override
             public void execute(Realm realm) {
-                mRealm.copyToRealmOrUpdate(equipment);
+                realm.copyToRealmOrUpdate(equipment);
             }
         }, new Realm.Transaction.OnError() {
             @Override
@@ -38,6 +33,10 @@ public class EquipmentRepository {
                 error.printStackTrace();
             }
         });
+    }
+
+    public static Equipment getEquipmentsById(Realm realm, int id) {
+        return realm.where(Equipment.class).equalTo("id", id).findFirstAsync();
     }
 
 }

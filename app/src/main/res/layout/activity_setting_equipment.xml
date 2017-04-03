@@ -100,7 +100,7 @@
         android:padding="@dimen/medium">
 
         <Button
-            android:id="@+id/btn_send_code"
+            android:id="@+id/btn_save_setting"
             android:text="@string/save"
             android:layout_gravity="center"
             style="@style/SendButton"/>

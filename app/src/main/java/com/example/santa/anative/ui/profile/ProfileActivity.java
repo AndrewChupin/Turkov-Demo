@@ -11,6 +11,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.santa.anative.R;
+import com.example.santa.anative.model.entity.Profile;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -21,11 +22,11 @@ public class ProfileActivity extends AppCompatActivity implements ProfileView {
     @BindView(R.id.toolbar_title) TextView mTitleProfile;
     @BindView(R.id.toolbar_profile) Toolbar mToolbarProfile;
 
-    @BindView(R.id.tv_profile_name) EditText tvName;
-    @BindView(R.id.tv_profile_surname) EditText tvSurname;
-    @BindView(R.id.tv_profile_patronymic) EditText tvPatronymic;
-    @BindView(R.id.tv_profile_email) EditText tvEmail;
-    @BindView(R.id.tv_profile_phone) EditText tvPhone;
+    @BindView(R.id.et_profile_name) EditText etName;
+    @BindView(R.id.et_profile_surname) EditText etSurname;
+    @BindView(R.id.et_profile_patronymic) EditText etPatronymic;
+    @BindView(R.id.et_profile_email) EditText etEmail;
+    @BindView(R.id.et_profile_phone) EditText etPhone;
 
     private ProfilePresenter mProfilePresenter;
     private ProgressDialog mProgressDialog;
@@ -62,11 +63,11 @@ public class ProfileActivity extends AppCompatActivity implements ProfileView {
 
     @OnClick(R.id.btn_profile_save)
     void onClickSave() {
-        mProfilePresenter.onSaveProfile(tvName.getText().toString(),
-                tvSurname.getText().toString(),
-                tvPatronymic.getText().toString(),
-                tvEmail.getText().toString(),
-                tvPhone.getText().toString());
+        mProfilePresenter.onSaveProfile(etName.getText().toString(),
+                etSurname.getText().toString(),
+                etPatronymic.getText().toString(),
+                etEmail.getText().toString(),
+                etPhone.getText().toString());
     }
 
     @Override
@@ -79,10 +80,21 @@ public class ProfileActivity extends AppCompatActivity implements ProfileView {
         return super.onOptionsItemSelected(item);
     }
 
+
     @Override
-    protected void onStop() {
+    protected void onDestroy() {
+        super.onDestroy();
         mProgressDialog.cancel();
-        super.onStop();
+        mProfilePresenter.onDestroy();
+    }
+
+    @Override
+    public void showProfileInfo(Profile profile) {
+        etName.setText(profile.getName());
+        etSurname.setText(profile.getSurname());
+        etPatronymic.setText(profile.getPatronymic());
+        etEmail.setText(profile.getEmail());
+        etPhone.setText(profile.getPhone());
     }
 
     @Override
@@ -96,7 +108,7 @@ public class ProfileActivity extends AppCompatActivity implements ProfileView {
     }
 
     @Override
-    public void showError(@StringRes int res) {
+    public void showMessage(@StringRes int res) {
         Toast.makeText(this, res, Toast.LENGTH_SHORT).show();
     }
 }

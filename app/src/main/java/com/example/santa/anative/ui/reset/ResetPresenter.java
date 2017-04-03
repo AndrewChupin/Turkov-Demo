@@ -7,12 +7,14 @@ import com.example.santa.anative.network.common.Observer;
 import com.example.santa.anative.network.connection.Connection;
 import com.example.santa.anative.network.connection.ConnectionManager;
 import com.example.santa.anative.network.service.ResetService;
-import com.example.santa.anative.ui.abstarct.Presentable;
-import com.example.santa.anative.util.algorithm.RealmSecure;
+import com.example.santa.anative.ui.common.Presentable;
+import com.example.santa.anative.util.realm.RealmSecure;
 import com.example.santa.anative.util.common.Validate;
 import com.example.santa.anative.util.network.ServiceError;
 
 import java.util.Arrays;
+
+import io.realm.Realm;
 
 import static com.example.santa.anative.application.Configurations.HOST;
 import static com.example.santa.anative.application.Configurations.PORT;
@@ -28,20 +30,27 @@ public class ResetPresenter implements Presentable {
     private Profile mProfile;
     private byte[] code;
     private String email;
+    private Realm mRealm;
 
     ResetPresenter(ResetView resetView) {
         mResetView = resetView;
     }
 
+    @Override
     public void onCreate() {
-        ProfileRepository profileRepository = new ProfileRepository(RealmSecure.getDefault());
-        mProfile = profileRepository.getProfile();
+        mRealm = RealmSecure.getDefault();
+        mProfile = ProfileRepository.getProfile(mRealm);
+    }
+
+    @Override
+    public void onDestroy() {
+        mRealm.close();
     }
 
     void onSendEmail(String email) {
 
         if (Validate.isNullOrEmpty(email)) {
-            mResetView.showError(R.string.incorrect_email);
+            mResetView.showMessage(R.string.incorrect_email);
             return;
         }
 
@@ -55,7 +64,7 @@ public class ResetPresenter implements Presentable {
             public void onError(int code) {
                 switch (code) {
                     case ServiceError.ERROR_RESPONSE:
-                        mResetView.showError(R.string.incorrect_response);
+                        mResetView.showMessage(R.string.incorrect_response);
                         break;
                 }
                 mResetService.onStop();
@@ -67,7 +76,8 @@ public class ResetPresenter implements Presentable {
                 mResetView.hideDialog();
                 mResetView.onEnterCode();
             }
-        }).onStart();
+        });
+        mResetService.onStart();
     }
 
 
@@ -80,15 +90,15 @@ public class ResetPresenter implements Presentable {
     void onResetPassword(byte[] password, byte[] repeatPassword) {
 
         if (Validate.isArrayNullOrEmpty(code)) {
-            mResetView.showError(R.string.incorrect_code);
+            mResetView.showMessage(R.string.incorrect_code);
             return;
         }
         if (Validate.isArrayNullOrEmpty(password) || Validate.isArrayNullOrEmpty(repeatPassword)) {
-            mResetView.showError(R.string.incorrect_password);
+            mResetView.showMessage(R.string.incorrect_password);
             return;
         }
         if (!Arrays.equals(password, repeatPassword)) {
-            mResetView.showError(R.string.passwords_not_equals);
+            mResetView.showMessage(R.string.passwords_not_equals);
             return;
         }
 
@@ -101,7 +111,7 @@ public class ResetPresenter implements Presentable {
             public void onError(int code) {
                 switch (code) {
                     case ServiceError.ERROR_RESPONSE:
-                        mResetView.showError(R.string.incorrect_response);
+                        mResetView.showMessage(R.string.incorrect_response);
                         break;
                 }
                 mResetService.onStop();
@@ -113,7 +123,8 @@ public class ResetPresenter implements Presentable {
                 mResetView.hideDialog();
                 mResetView.onAuth(email);
             }
-        }).onStart();
+        });
+        mResetService.onStart();
     }
 
 

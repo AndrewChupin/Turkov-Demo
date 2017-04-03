@@ -12,7 +12,7 @@ import java.util.Random;
  * Its the fast
  */
 
-public class ByteArray {
+public final class ByteArray {
 
 
     private byte[] array;
@@ -32,7 +32,7 @@ public class ByteArray {
     }
 
 
-    public byte[] appendWithSplit(byte split, byte[]... arr) {
+    public ByteArray appendWithSplit(byte split, byte[]... arr) {
         int length = 0;
         int increment;
 
@@ -55,7 +55,7 @@ public class ByteArray {
         }
 
         array = result;
-        return array;
+        return this;
     }
 
 
