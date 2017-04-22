@@ -2,7 +2,7 @@ package com.example.santa.anative.ui.main;
 
 import com.example.santa.anative.model.entity.Equipment;
 import com.example.santa.anative.model.repository.EquipmentRepository;
-import com.example.santa.anative.ui.common.Presentable;
+import com.example.santa.anative.ui.common.Presenter;
 import com.example.santa.anative.util.realm.RealmSecure;
 
 import io.realm.Realm;
@@ -13,7 +13,7 @@ import io.realm.RealmResults;
  * Created by santa on 26.03.17.
  */
 
-class MainPresenter implements Presentable {
+class MainPresenter implements Presenter {
 
     private MainView mMainView;
     private Realm mRealm;

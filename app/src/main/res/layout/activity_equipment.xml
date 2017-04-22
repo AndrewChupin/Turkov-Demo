@@ -20,155 +20,9 @@
         android:weightSum="1">
 
         <FrameLayout
+            android:id="@+id/fl_equipment_detail_info"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
-
-            <ImageView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:src="@drawable/warm"
-                android:padding="@dimen/medium"
-                android:layout_gravity="center_vertical"/>
-
-            <android.support.v7.widget.SwitchCompat
-                android:layout_gravity="end"
-                android:layout_margin="@dimen/medium"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                style="@style/Switcher"/>
-
-        </FrameLayout>
-
-
-        <FrameLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:padding="@dimen/low"
-            android:orientation="horizontal">
-
-            <LinearLayout
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal">
-
-                <ImageView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center"
-                    android:layout_marginEnd="@dimen/low"
-                    android:src="@drawable/ic_speed_balck_36"/>
-
-                <android.support.v7.widget.AppCompatSpinner
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:id="@+id/spinner_ventilation_speed"
-                    android:background="@drawable/shape_spinner_static"
-                    android:popupBackground="@drawable/shape_dropbox_background"/>
-
-            </LinearLayout>
-
-            <android.support.v7.widget.AppCompatSpinner
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:gravity="end"
-                android:layout_gravity="end"
-                android:id="@+id/spinner_ventilation_temperature"
-                android:background="@drawable/shape_spinner_static"
-                android:popupBackground="@drawable/shape_dropbox_background"/>
-
-        </FrameLayout>
-
-
-        <FrameLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content">
-
-            <LinearLayout
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:padding="@dimen/low"
-                android:orientation="horizontal">
-
-                <ImageView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:src="@drawable/ic_thermometer_black_36"/>
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="start|top"
-                    android:gravity="center"
-                    android:drawableStart="@drawable/ic_tree_black_36dp"
-                    android:text="99.9 C"/>
-
-            </LinearLayout>
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center|top"
-                android:gravity="center"
-                android:padding="@dimen/low"
-                android:drawableStart="@drawable/ic_humidity_black_36dp"
-                android:text="99.9 C"/>
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:padding="@dimen/low"
-                android:gravity="center"
-                android:drawableStart="@drawable/ic_cloud_balck_36dp"
-                android:layout_gravity="end"
-                android:text="99.9 C"/>
-
-        </FrameLayout>
-
-        <FrameLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content">
-
-           <LinearLayout
-               android:layout_width="wrap_content"
-               android:layout_height="wrap_content"
-               android:padding="@dimen/low"
-               android:orientation="horizontal">
-
-               <ImageView
-                   android:layout_width="wrap_content"
-                   android:layout_height="wrap_content"
-                   android:src="@drawable/ic_thermometer_black_36"/>
-
-               <TextView
-                   android:layout_width="wrap_content"
-                   android:layout_height="wrap_content"
-                   android:layout_gravity="start|top"
-                   android:gravity="center"
-                   android:drawableStart="@drawable/ic_home_black_36dp"
-                   android:text="99.9 C"/>
-
-           </LinearLayout>
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center|top"
-                android:gravity="center"
-                android:drawableStart="@drawable/ic_pressure_black_36dp"
-                android:padding="@dimen/low"
-                android:text="99.9 C"
-                android:id="@+id/textView"/>
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:gravity="center"
-                android:drawableStart="@drawable/ic_table_black_36dp"
-                android:padding="@dimen/low"
-                android:layout_gravity="end"
-                android:text="99.9 C"/>
-
-        </FrameLayout>
+            android:layout_height="wrap_content"/>
 
         <LinearLayout
             android:id="@+id/ll_error_container"
@@ -207,7 +61,6 @@
 
     </LinearLayout>
 
-    <!-- TODO toolbar height -->
     <FrameLayout
         android:id="@+id/fl_equipment_schedule"
         android:layout_width="match_parent"

@@ -9,15 +9,13 @@ import com.example.santa.anative.network.connection.ConnectionDelegate;
 import com.example.santa.anative.network.common.Observer;
 import com.example.santa.anative.network.common.Service;
 import com.example.santa.anative.util.algorithm.KeyCrypter;
-import com.example.santa.anative.util.algorithm.Xor;
 import com.example.santa.anative.util.common.ByteArray;
 import com.example.santa.anative.util.common.ByteHelper;
-import com.example.santa.anative.util.network.ServiceError;
-import com.example.santa.anative.util.algorithm.AlgorithmUtils;
+import com.example.santa.anative.util.network.ServiceEvent;
+import com.example.santa.anative.util.algorithm.Generator;
 import com.example.santa.anative.util.algorithm.HkdfSha1;
 import com.example.santa.anative.util.common.Validate;
 
-import java.nio.ByteBuffer;
 import java.util.Formatter;
 import java.util.Locale;
 
@@ -37,6 +35,7 @@ public class ResetService extends AsyncTask<String, Integer, Void> implements Se
     private byte[] code;
 
     private boolean isCode;
+    private boolean isSuccess;
 
     // Server markers
     private static final String SERVER_HELLO_MESSAGE = "H";
@@ -55,7 +54,6 @@ public class ResetService extends AsyncTask<String, Integer, Void> implements Se
         mConnection = connection;
         this.email = email;
         this.deviceId = device;
-        mConnection.attachDelegate(this);
     }
 
     public ResetService(Connection connection, String email, String device, byte[] password, byte[] code) {
@@ -65,7 +63,6 @@ public class ResetService extends AsyncTask<String, Integer, Void> implements Se
         this.code = code;
         this.email = email;
         this.deviceId = device;
-        mConnection.attachDelegate(this);
     }
 
 
@@ -75,7 +72,7 @@ public class ResetService extends AsyncTask<String, Integer, Void> implements Se
      */
     @Override
     protected Void doInBackground(String... params) {
-        mConnection.start();
+        mConnection.start(this);
         return null;
     }
 
@@ -98,7 +95,10 @@ public class ResetService extends AsyncTask<String, Integer, Void> implements Se
     @Override
     protected void onPostExecute(Void aVoid) {
         super.onPostExecute(aVoid);
-        if (mObserver != null) mObserver.onComplete();
+        onStop();
+        if (mObserver != null && isSuccess) {
+            mObserver.onSuccess();
+        }
     }
 
 
@@ -108,18 +108,7 @@ public class ResetService extends AsyncTask<String, Integer, Void> implements Se
      */
     @Override
     public void onStop() {
-        if (!isCancelled()) cancel(true);
         mConnection.stopClient();
-    }
-
-
-    /**
-     *  Override from Service
-     *  @see Service
-     */
-    @Override
-    public void onStart() {
-        this.execute();
     }
 
 
@@ -138,36 +127,52 @@ public class ResetService extends AsyncTask<String, Integer, Void> implements Se
      *  @see ConnectionDelegate
      */
     @Override
+    public void onConnectionEvent(int code) {
+        switch (code) {
+            case ServiceEvent.ERROR_SEND_MESSAGE:
+                publishProgress(ServiceEvent.ERROR_SEND_MESSAGE);
+                break;
+            case ServiceEvent.ERROR_CONNECT:
+                publishProgress(ServiceEvent.ERROR_CONNECT);
+                break;
+        }
+    }
+
+
+    /**
+     *  Override from ConnectionDelegate
+     *  @see ConnectionDelegate
+     */
+    @Override
     public void messageReceived(byte[] response) {
         try {
             String[] sessionParams = new String(response).split("\\s+");
             switch (sessionParams[0]) {
-                // SUCCESS RESPONSE
+                // SUCCESS STATUS_RESPONSE
                 case SERVER_HELLO_MESSAGE:
                     startRegistrationProtocol(sessionParams[1]);
                     break;
                 case SERVER_CODE_SUCCESS:
-                    mObserver.onComplete();
-                    break;
                 case SERVER_RESET_SUCCESS:
-                    mObserver.onComplete();
+                    isSuccess = true;
+                    onStop();
                     break;
 
-                // FAILURE RESPONSE
+                // FAILURE STATUS_RESPONSE
                 case SERVER_CODE_FAILURE:
-                    publishProgress(ServiceError.ERROR_CODE_FAILURE);
+                    publishProgress(ServiceEvent.ERROR_CODE_FAILURE);
                     break;
                 case SERVER_RESET_FAILURE:
-                    publishProgress(ServiceError.ERROR_RESET_FAILED);
+                    publishProgress(ServiceEvent.ERROR_RESET_FAILED);
                     break;
 
-                // DEFAULT RESPONSE
+                // DEFAULT STATUS_RESPONSE
                 default:
-                    publishProgress(ServiceError.ERROR_RESPONSE);
+                    publishProgress(ServiceEvent.ERROR_RESPONSE);
                     break;
             }
         } catch (Exception exception) {
-            publishProgress(ServiceError.ERROR_UNKNOWN);
+            publishProgress(ServiceEvent.ERROR_UNKNOWN);
         }
     }
 
@@ -184,12 +189,12 @@ public class ResetService extends AsyncTask<String, Integer, Void> implements Se
     private void startRegistrationProtocol(String serverName) {
         if (!Validate.isNullOrEmpty(serverName) && serverName.equals(Configurations.SERVER_NAME)) {
             String clientId = String.format(Locale.ENGLISH, "%s#%s", email, deviceId);
-            if (isCode) {
+            if (!isCode) {
                 ByteArray response = new ByteArray();
                 response.appendWithSplit(ByteHelper.SPACE,
                         CLIENT_RESET_REQUEST.getBytes(),
                         clientId.getBytes(),
-                        AlgorithmUtils.generateAbilitiesMask()
+                        Generator.generateAbilitiesMask()
                 );
                 mConnection.sendMessage(response.array());
 
@@ -203,7 +208,7 @@ public class ResetService extends AsyncTask<String, Integer, Void> implements Se
                         .append(ByteHelper.COMMA)
                         .append(password)
                         .append(ByteHelper.COMMA)
-                        .fillFreeRandom(180);
+                        .fillFreeRandom(128);
 
                 byte[] key = HkdfSha1.deriveKey(code,
                         clientId.getBytes(),
@@ -216,8 +221,8 @@ public class ResetService extends AsyncTask<String, Integer, Void> implements Se
                 response.appendWithSplit(ByteHelper.SPACE,
                         CLIENT_RESET_REQUEST.getBytes(),
                         clientId.getBytes(),
-                        AlgorithmUtils.generateAbilitiesMask(),
-                        encode
+                        Generator.generateAbilitiesMask(),
+                        Base64.encode(encode, Base64.NO_WRAP)
                         );
 
                 mConnection.sendMessage(response.array());
@@ -226,7 +231,7 @@ public class ResetService extends AsyncTask<String, Integer, Void> implements Se
                 // Arrays.fill(key, (byte) 32);
                 // block.reset();
             }
-        } else publishProgress(ServiceError.ERROR_RESPONSE);
+        } else publishProgress(ServiceEvent.ERROR_RESPONSE);
     }
 
 

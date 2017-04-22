@@ -13,4 +13,12 @@ public interface ConnectionDelegate {
      * @param response сообщение сервера
      */
     void messageReceived(byte[] response);
+
+    /**
+     *
+     * Данный метод принимает входящие сообщения от соединения с сервером и выбирает подходящий
+     * протокол(стратегию) для дальнейшего поведелния
+     * @param code код ошибки
+     */
+    void onConnectionEvent(int code);
 }

@@ -1,5 +1,7 @@
 package com.example.santa.anative.util.common;
 
+import android.util.Log;
+
 import java.lang.reflect.Array;
 import java.nio.ByteBuffer;
 import java.security.SecureRandom;
@@ -13,7 +15,6 @@ import java.util.Random;
  */
 
 public final class ByteArray {
-
 
     private byte[] array;
 
@@ -36,9 +37,8 @@ public final class ByteArray {
         int length = 0;
         int increment;
 
-        for (int i = 0; i < arr.length; i++) {
-            arr[i] = trim(arr[i]);
-            length += arr[i].length;
+        for (byte[] anArr : arr) {
+            length += anArr.length;
         }
 
         length = length + arr.length + array.length;
@@ -62,17 +62,17 @@ public final class ByteArray {
     public ByteArray append(byte[]... arr) {
         int length = 0;
         int increment;
-        for (int i = 0; i < arr.length; i++) {
-            arr[i] = trim(arr[i]);
-            length += arr[i].length;
-        }
+        length += array.length;
+        for (byte[] anArr : arr) length += anArr.length;
 
+        System.out.println(length);
         byte[] result = new byte[length];
         increment = array.length;
 
         System.arraycopy(array, 0, result, 0, array.length);
+
         for (byte[] arrTemp : arr) {
-            System.arraycopy(arrTemp, 0, result, array.length + increment, arrTemp.length);
+            System.arraycopy(arrTemp, 0, result, increment, arrTemp.length);
             increment += arrTemp.length;
         }
 
@@ -102,15 +102,6 @@ public final class ByteArray {
 
     public byte[] array() {
         return array;
-    }
-
-
-    private byte[] trim(byte[] arr) {
-        int start = 0;
-        int end = arr.length - 1;
-        while(arr[start] == 32) start++;
-        while(arr[end] == 32) end--;
-        return Arrays.copyOfRange(arr, start, end);
     }
 
 

@@ -2,18 +2,14 @@ package com.example.santa.anative.network.connection;
 
 import android.util.Log;
 
+import com.example.santa.anative.util.network.ServiceEvent;
+
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
-import java.io.PrintWriter;
 import java.net.InetAddress;
 import java.net.Socket;
+import java.util.Arrays;
 
 /**
  * Created by santa on 08.03.17.
@@ -21,80 +17,80 @@ import java.net.Socket;
 
 public class Connection {
 
-    public int id;
-    private byte[] serverMessage;
     private String mHost;
     private int mPort;
+
     private ConnectionDelegate mConnectionDelegate;
-    private boolean isConnected = false;
     private BufferedOutputStream mBufferedOutputStream;
-    private PrintWriter out;
+    private BufferedInputStream bufferedInputStream;
 
+    private boolean isConnected = false;
 
-    Connection(String host, int port) {
+    public Connection(String host, int port) {
         mHost = host;
         mPort = port;
     }
 
-    Connection(String host, int port, ConnectionDelegate connectionDelegate) {
-        mHost = host;
-        mPort = port;
+    public void start(ConnectionDelegate connectionDelegate) {
         mConnectionDelegate = connectionDelegate;
-    }
-
-    public void start() {
         isConnected = true;
-
         try {
             //here you must put your computer's IP address.
             InetAddress serverAddress = InetAddress.getByName(mHost);
-
-            Log.e("TCP Client", "C: Connecting...");
+            Log.e("TCP Client", "C: Get host...");
 
             //create a socket to make the connection with the server
             Socket socket = new Socket(serverAddress, mPort);
+            Log.e("TCP Client", "C: Connecting server...");
 
             try {
                 // receive the message which the server sends back
-                BufferedInputStream bufferedInputStream = new BufferedInputStream(socket.getInputStream());
+                bufferedInputStream = new BufferedInputStream(socket.getInputStream());
 
                 // send the message to the server
                 mBufferedOutputStream = new BufferedOutputStream(socket.getOutputStream());
 
-                Log.d("TCP Client", "C: Sent.");
                 Log.d("TCP Client", "C: Done.");
+                mConnectionDelegate.onConnectionEvent(ServiceEvent.SERVER_DID_CONNECT);
 
                 //in this while the client listens for the messages sent by the server
                 while (isConnected) {
-                    serverMessage = new byte[1024];
+                    byte[] serverMessage = new byte[1024];
                     int i = bufferedInputStream.read(serverMessage);
-
-                    if (serverMessage != null && mConnectionDelegate != null) {
+                    if (mConnectionDelegate != null) {
                         //call the method messageReceived from MyActivity class
-                        mConnectionDelegate.messageReceived(serverMessage);
-                        Log.d("Logos", "messageReceived " + serverMessage);
+                        byte[] message = Arrays.copyOfRange(serverMessage, 0, i);
+                        mConnectionDelegate.messageReceived(message);
+                        Log.d("Logos", "messageReceived " +  Arrays.toString(message));
                     }
-                    serverMessage = null;
-
                 }
-                Log.d("RESPONSE FROM SERVER", "S: Received Message: '" + serverMessage + "'");
             } catch (Exception e) {
-                Log.d("TCP", "S: Error", e);
+                if (mConnectionDelegate != null) {
+                    mConnectionDelegate.onConnectionEvent(ServiceEvent.ERROR_CONNECT);
+                }
+                Log.d("TCP", "C: Error " + socket.isConnected());
             } finally {
-                //the socket must be closed. It is not possible to reconnect to this socket
-                // after it is closed, which means a new socket instance has to be created.
+                mBufferedOutputStream.flush();
+                mBufferedOutputStream.close();
+                bufferedInputStream.close();
                 socket.close();
+                Log.d("TCP", "Socket Closed " + socket.isConnected());
+                Log.d("TCP", "Socket Closed " + socket.isClosed());
             }
         } catch (Exception e) {
+            if (mConnectionDelegate != null) {
+                mConnectionDelegate.onConnectionEvent(ServiceEvent.ERROR_CONNECT);
+            }
             Log.d("TCP", "C: Error", e);
         }
     }
+
 
     /**
      * Sends the message entered by client to the server
      * @param message text entered by client
      */
-    public void sendMessage(byte[] message){
+    public void sendMessage(byte[] message) {
         if (mBufferedOutputStream != null) {
             Log.d("Logos", "Connection | sendMessage: " + new String(message));
             try {
@@ -102,17 +98,19 @@ public class Connection {
                 mBufferedOutputStream.flush();
             } catch (IOException e) {
                 e.printStackTrace();
+                mConnectionDelegate.onConnectionEvent(ServiceEvent.ERROR_SEND_MESSAGE);
             }
         }
     }
 
-    public void attachDelegate(ConnectionDelegate connectionDelegate) {
-        mConnectionDelegate = connectionDelegate;
-    }
 
     public void stopClient() {
+        try {
+           if (bufferedInputStream != null) bufferedInputStream.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
         isConnected = false;
     }
-
 }
 

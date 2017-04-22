@@ -1,13 +1,14 @@
 package com.example.santa.anative.ui.equipment.edit;
 
-import com.example.santa.anative.R;
 import com.example.santa.anative.model.entity.Equipment;
+import com.example.santa.anative.model.entity.Package;
+import com.example.santa.anative.model.pack.EquipmentPackage;
 import com.example.santa.anative.model.repository.EquipmentRepository;
+import com.example.santa.anative.model.repository.ProfileRepository;
 import com.example.santa.anative.network.common.Observer;
 import com.example.santa.anative.network.connection.Connection;
-import com.example.santa.anative.network.connection.ConnectionManager;
 import com.example.santa.anative.network.service.MainService;
-import com.example.santa.anative.ui.common.Presentable;
+import com.example.santa.anative.ui.common.Presenter;
 import com.example.santa.anative.util.realm.RealmSecure;
 
 import io.realm.Realm;
@@ -19,7 +20,7 @@ import static com.example.santa.anative.application.Configurations.PORT;
  * Created by santa on 31.03.17.
  */
 
-class EditEquipmentPresenter implements Presentable {
+class EditEquipmentPresenter implements Presenter {
 
     private Realm mRealm;
     private EditEquipmentView mEditEquipmentView;
@@ -37,26 +38,28 @@ class EditEquipmentPresenter implements Presentable {
 
 
     void sendEquipment(final Equipment equipment) {
-        // TODO CRATE PACKAGE
+        int senderId = ProfileRepository.getProfile(mRealm).getClientId();
+        Package pack = EquipmentPackage.createEditEquipmentPackage(senderId, equipment);
 
-       /* Connection connection = ConnectionManager.getDefault().create(HOST, PORT);
-        MainService mainService = new MainService(connection);
+        Connection connection = new Connection(HOST, PORT);
+        final MainService mainService = new MainService(connection, pack);
         mainService.onSubscribe(new Observer() {
             @Override
             public void onError(int code) {
                 mEditEquipmentView.hideDialog();
                 mEditEquipmentView.showMessage(code);
+                mainService.onStop();
             }
 
             @Override
-            public void onComplete() {
+            public void onSuccess() {
                 mEditEquipmentView.hideDialog();
                 mEditEquipmentView.onEditSuccess();
                 EquipmentRepository.saveEquipment(mRealm, equipment);
             }
         });
         mEditEquipmentView.showDialog();
-        mainService.onStart();*/
+        mainService.execute();
     }
 
     Equipment onFindEquipment(int id) {

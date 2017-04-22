@@ -1,13 +1,12 @@
 package com.example.santa.anative.model.entity;
 
+import java.util.Arrays;
+
 import io.realm.RealmModel;
 import io.realm.annotations.RealmClass;
 
-import io.realm.ProfileRealmProxy;
-import io.realm.RealmModel;
 import io.realm.annotations.Ignore;
 import io.realm.annotations.PrimaryKey;
-import io.realm.annotations.RealmClass;
 
 /**
  * Created by santa on 25.03.17.
@@ -16,74 +15,57 @@ import io.realm.annotations.RealmClass;
 @RealmClass
 public class Package implements RealmModel {
 
-    @Ignore
-    public static final int MIN_SIZE = 18;
-
     // Builder Status
-    @Ignore
-    public static final int REQUEST = 0;
-    @Ignore
-    public static final int RESPONSE = 1;
-    @Ignore
-    public static final int REJECT = 2;
-    @Ignore
-    public static final int UNDEFINE = 3;
+    @Ignore public static final int STATUS_REQUEST = 0;
+    @Ignore public static final int STATUS_RESPONSE = 1;
+    @Ignore public static final int STATUS_REJECT = 2;
+    @Ignore public static final int STATUS_UNDEFINE = 3;
 
     // Command
-    @Ignore
-    public static final int READ = 0;
-    @Ignore
-    public static final int WRITE = 1;
-    @Ignore
-    public static final int READ_BIG = 2;
-    @Ignore
-    public static final int WRITE_BIG = 3;
+    @Ignore public static final int COMMAND_READ = 0;
+    @Ignore public static final int COMMAND_WRITE = 1;
+    @Ignore public static final int COMMAND_READ_BIG = 2;
+    @Ignore public static final int COMMAND_WRITE_BIG = 3;
 
     // Data Type
-    @Ignore
-    public static final int INTEGER = 0;
-    @Ignore
-    public static final int SHORT = 1;
-    @Ignore
-    public static final int CHAR = 2;
-    @Ignore
-    public static final int DOUBLE = 3;
-    @Ignore
-    public static final int STRING = 4;
-    @Ignore
-    public static final int FLOAT = 5;
-    @Ignore
-    public static final int BIG_DATA = 6;
-    @Ignore
-    public static final int JSON = 7;
+    @Ignore public static final int TYPE_INTEGER = 0;
+    @Ignore public static final int TYPE_SHORT = 1;
+    @Ignore public static final int TYPE_CHAR = 2;
+    @Ignore public static final int TYPE_DOUBLE = 3;
+    @Ignore public static final int TYPE_STRING = 4;
+    @Ignore public static final int TYPE_FLOAT = 5;
+    @Ignore public static final int TYPE_BIG_DATA = 6;
+    @Ignore public static final int TYPE_JSON = 7;
 
     @PrimaryKey
-    private int recipient;
-    private int sender;
+    private int register;
+
+    private byte[] recipient;
+    private byte[] sender;
+    private byte[] message;
+
     private int timestamp;
     private int command;
     private int length;
     private int status;
-    private int register;
+
     private int type;
-    private int id;
-    private String message;
+    private short id;
 
-
-    public int getSender() {
-        return sender;
-    }
-
-    public void setSender(int sender) {
-        this.sender = sender;
-    }
-
-    public int getRecipient() {
+    public byte[] getRecipient() {
         return recipient;
     }
 
-    public void setRecipient(int recipient) {
+    public void setRecipient(byte[] recipient) {
         this.recipient = recipient;
+    }
+
+    public byte[] getSender() {
+        return sender;
+    }
+
+    public void setSender(byte[] sender) {
+        this.sender = sender;
     }
 
     public int getTimestamp() {
@@ -134,27 +116,27 @@ public class Package implements RealmModel {
         this.type = type;
     }
 
-    public String getMessage() {
+    public byte[] getMessage() {
         return message;
     }
 
-    public void setMessage(String message) {
+    public void setMessage(byte[] message) {
         this.message = message;
     }
 
-    public int getId() {
+    public short getId() {
         return id;
     }
 
-    public void setId(int id) {
+    public void setId(short id) {
         this.id = id;
     }
 
     @Override
     public String toString() {
         return "Package{" +
-                "recipient=" + recipient +
-                ", sender=" + sender +
+                "recipient=" + Arrays.toString(recipient) +
+                ", sender=" + Arrays.toString(sender) +
                 ", timestamp=" + timestamp +
                 ", command=" + command +
                 ", length=" + length +
@@ -162,8 +144,7 @@ public class Package implements RealmModel {
                 ", register=" + register +
                 ", type=" + type +
                 ", id=" + id +
-                ", message='" + message + '\'' +
+                ", message='" + Arrays.toString(message) + '\'' +
                 '}';
     }
-
 }

@@ -27,21 +27,13 @@ public class Setting implements RealmModel {
     @Ignore
     public static final byte SUNNDAY = 7;
 
-    @Ignore
-    public static final byte AUTO = 0;
-    @Ignore
-    public static final byte FIRST = 1;
-    @Ignore
-    public static final byte SECOND = 2;
-    @Ignore
-    public static final byte THIRD = 3;
-
     @PrimaryKey
     private int id;
 
     private int hour;
     private int minutes;
     private int day;
+    private int number;
 
     private boolean isEnable;
     private boolean isActive;
@@ -50,6 +42,13 @@ public class Setting implements RealmModel {
     private int temperature;
     private int humidity;
 
+    public int getNumber() {
+        return number;
+    }
+
+    public void setNumber(int number) {
+        this.number = number;
+    }
 
     public int getId() {
         return id;

@@ -26,7 +26,6 @@ public final class ByteHelper {
 
 
     public static ArrayList<byte[]> split(byte[] arr, byte item) {
-        arr = trim(arr);
         ArrayList<byte[]> list = new ArrayList<>();
         int lastSlip = 0;
         for(int i = 0; i < arr.length; i++) {
@@ -38,14 +37,6 @@ public final class ByteHelper {
             }
         }
         return list;
-    }
-
-    private static byte[] trim(byte[] arr) {
-        int start = 0;
-        int end = arr.length - 1;
-        while(arr[start] == 32) start++;
-        while(arr[end] == 32) end--;
-        return Arrays.copyOfRange(arr, start, end);
     }
 
 
@@ -79,20 +70,37 @@ public final class ByteHelper {
         return new String(hexChars);
     }
 
+
     public static int byteArrayToInt(byte[] encodedValue) {
-        int value = (encodedValue[3] << (Byte.SIZE * 3));
-        value |= (encodedValue[2] & 0xFF) << (Byte.SIZE * 2);
-        value |= (encodedValue[1] & 0xFF) << (Byte.SIZE);
-        value |= (encodedValue[0] & 0xFF);
+        int value = (encodedValue[0] << (Byte.SIZE * 3));
+        value |= (encodedValue[1] & 0xFF) << (Byte.SIZE * 2);
+        value |= (encodedValue[2] & 0xFF) << (Byte.SIZE);
+        value |= (encodedValue[3] & 0xFF);
         return value;
     }
 
+
     public static byte[] intToByteArray(int value) {
         byte[] encodedValue = new byte[Integer.SIZE / Byte.SIZE];
-        encodedValue[3] = (byte) (value >> Byte.SIZE * 3);
-        encodedValue[2] = (byte) (value >> Byte.SIZE * 2);
-        encodedValue[1] = (byte) (value >> Byte.SIZE);
-        encodedValue[0] = (byte) value;
+        encodedValue[0] = (byte) (value >> Byte.SIZE * 3);
+        encodedValue[1] = (byte) (value >> Byte.SIZE * 2);
+        encodedValue[2] = (byte) (value >> Byte.SIZE);
+        encodedValue[3] = (byte) value;
+        return encodedValue;
+    }
+
+
+    public static short byteArrayToShort(byte[] encodedValue) {
+        short value = (short) ((encodedValue[0] & 0xFF) << (Byte.SIZE)); // TODO
+        value |= (encodedValue[1] & 0xFF);
+        return value;
+    }
+
+
+    public static byte[] shortToByteArray(short value) {
+        byte[] encodedValue = new byte[Short.SIZE / Byte.SIZE];
+        encodedValue[0] = (byte) (value >> Byte.SIZE);
+        encodedValue[1] = (byte) value;
         return encodedValue;
     }
 }

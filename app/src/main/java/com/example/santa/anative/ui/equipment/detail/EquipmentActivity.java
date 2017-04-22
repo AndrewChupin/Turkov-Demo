@@ -3,9 +3,10 @@ package com.example.santa.anative.ui.equipment.detail;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.StringRes;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.AppCompatSpinner;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
@@ -21,14 +22,12 @@ import com.example.santa.anative.model.entity.Equipment;
 import com.example.santa.anative.model.entity.Error;
 import com.example.santa.anative.ui.equipment.edit.EditEquipmentActivity;
 import com.example.santa.anative.ui.equipment.schedule.ScheduleActivity;
+import com.example.santa.anative.util.common.ExtraKey;
 import com.example.santa.anative.widget.adapter.pager.ErrorPager;
-import com.example.santa.anative.widget.adapter.recycler.EquipmentAdapter;
 import com.example.santa.anative.widget.adapter.recycler.ExpandErrorAdapter;
-import com.example.santa.anative.widget.adapter.recycler.MySpinnerAdapter;
 import com.example.santa.anative.widget.adapter.recycler.utils.ItemClickSupport;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -41,14 +40,13 @@ public class EquipmentActivity extends AppCompatActivity implements EquipmentVie
     @BindView(R.id.rv_error_list) RecyclerView mRvErrorList;
     @BindView(R.id.vp_error_pager) ViewPager mVpErrors;
     @BindView(R.id.fl_pager_container) FrameLayout mFlPagerContainer;
-    @BindView(R.id.spinner_ventilation_speed) AppCompatSpinner mVentilationSpeed;
-    @BindView(R.id.spinner_ventilation_temperature) AppCompatSpinner mVentilationTemperature;
 
-    public static final String EXTRA_EQUIPMENT_ID = "equipmentId";
+
 
     private ArrayList<Error> mErrorList;
     private EquipmentPresenter equipmentPresenter;
     private Equipment mEquipment;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -57,7 +55,6 @@ public class EquipmentActivity extends AppCompatActivity implements EquipmentVie
         ButterKnife.bind(this);
 
         initializeToolbar();
-        initializeSpinners();
         initializeErrorList();
         initializeErrorPager();
         initializePresenter();
@@ -71,34 +68,18 @@ public class EquipmentActivity extends AppCompatActivity implements EquipmentVie
     }
 
     private void initializeToolbar() {
-        mTvTitleEquipment.setText(R.string.ventilation);
-        mToolbarEquipment.setTitle("");
+        mToolbarEquipment.setTitle(R.string.empty);
         setSupportActionBar(mToolbarEquipment);
         mToolbarEquipment.inflateMenu(R.menu.edit_equipment);
-        if (getSupportActionBar() != null) getSupportActionBar()
-                .setDisplayHomeAsUpEnabled(true);
+        if (getSupportActionBar() != null) {
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+            getSupportActionBar().setDisplayShowTitleEnabled(false);
+        }
     }
 
     private void initializePresenter() {
         equipmentPresenter = new EquipmentPresenter(this);
         equipmentPresenter.onCreate();
-    }
-
-    private void initializeSpinners() {
-        // Speed
-        String[] weekdays = getResources().getStringArray(R.array.fan_array);
-        ArrayList<String> weekList = new ArrayList<>(Arrays.asList(weekdays));
-
-        MySpinnerAdapter weekdaysAdapter = new MySpinnerAdapter(this, weekList);
-        mVentilationSpeed.setAdapter(weekdaysAdapter);
-
-        // Temperature
-        ArrayList<String> pointList = new ArrayList<>();
-        for (int i = 99; i > 0; i--) {
-            pointList.add(String.valueOf(i));
-        }
-        MySpinnerAdapter pointAdapter = new MySpinnerAdapter(this, pointList);
-        mVentilationTemperature.setAdapter(pointAdapter);
     }
 
 
@@ -130,14 +111,25 @@ public class EquipmentActivity extends AppCompatActivity implements EquipmentVie
 
 
     public void showEquipmentDetail() {
-        int equipmentId = getIntent().getIntExtra(EXTRA_EQUIPMENT_ID, -1);
+        int equipmentId = getIntent().getIntExtra(ExtraKey.EXTRA_EQUIPMENT_ID, -1);
         mEquipment = equipmentPresenter.onFindEquipment(equipmentId);
+        mTvTitleEquipment.setText(mEquipment.getTitle());
 
         if (mEquipment == null) {
             showMessage(R.string.incorrect_equipment_id);
             onBackPressed();
         }
-        // TODO
+
+        EquipmentDetail fragmentDetail = EquipmentDetailFactory.getFragmentDetail(mEquipment.getType());
+        setDetailFragment(fragmentDetail);
+        fragmentDetail.onBindData(mEquipment);
+    }
+
+
+    private void setDetailFragment(EquipmentDetail detail) {
+        FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+        transaction.replace(R.id.fl_equipment_detail_info, (Fragment) detail);
+        transaction.commit();
     }
 
 
@@ -151,7 +143,7 @@ public class EquipmentActivity extends AppCompatActivity implements EquipmentVie
     @OnClick(R.id.fl_equipment_schedule)
     void onShowEquipmentSchedule() {
         Intent intent = new Intent(this, ScheduleActivity.class);
-        intent.putExtra(EquipmentActivity.EXTRA_EQUIPMENT_ID, mEquipment.getId());
+        intent.putExtra(ExtraKey.EXTRA_EQUIPMENT_ID, mEquipment.getId());
         startActivity(intent);
     }
 
@@ -174,7 +166,7 @@ public class EquipmentActivity extends AppCompatActivity implements EquipmentVie
         switch (item.getItemId()) {
             case R.id.menu_edit_equipment:
                 Intent intent = new Intent(this, EditEquipmentActivity.class);
-                intent.putExtra(EquipmentActivity.EXTRA_EQUIPMENT_ID, mEquipment.getId());
+                intent.putExtra(ExtraKey.EXTRA_EQUIPMENT_ID, mEquipment.getId());
                 startActivity(intent);
                 return true;
             case android.R.id.home:

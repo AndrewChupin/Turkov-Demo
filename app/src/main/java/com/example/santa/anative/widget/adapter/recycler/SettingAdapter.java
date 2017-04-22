@@ -18,25 +18,25 @@ import java.util.List;
  * Created by santa on 08.03.17.
  */
 
-public class MySpinnerAdapter extends ArrayAdapter<String> {
+public class SettingAdapter extends ArrayAdapter<String> {
 
 
-    ArrayList<String> mArrayList;
+    private ArrayList<String> mArrayList;
     private Context mContext;
 
 
-    public MySpinnerAdapter(Context context, List<String> objects) {
+    public SettingAdapter(Context context, List<String> objects) {
         super(context, R.layout.item_spinner_dropdown, objects);
         mArrayList = (ArrayList<String>) objects;
         mContext = context;
     }
 
 
-
     @Override
     public int getViewTypeCount() {
         return 1;
     }
+
 
     @Override
     public View getDropDownView(int position, View convertView, @NonNull ViewGroup parent) {
@@ -45,6 +45,7 @@ public class MySpinnerAdapter extends ArrayAdapter<String> {
         textView.setText(mArrayList.get(position));
         return view;
     }
+
 
     @NonNull
     @Override
@@ -55,6 +56,5 @@ public class MySpinnerAdapter extends ArrayAdapter<String> {
         textView.setText(mArrayList.get(position));
         return view;
     }
-
 
 }

@@ -1,7 +1,5 @@
 package com.example.santa.anative.widget.adapter.recycler;
 
-import android.content.Context;
-import android.content.Intent;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SwitchCompat;
 import android.view.LayoutInflater;
@@ -12,10 +10,11 @@ import android.widget.TextView;
 
 import com.example.santa.anative.R;
 import com.example.santa.anative.model.entity.Setting;
-import com.example.santa.anative.ui.equipment.setting.SettingEquipmentActivity;
+import com.example.santa.anative.ui.common.StateChangedListener;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import butterknife.OnCheckedChanged;
 import io.realm.RealmList;
 
 /**
@@ -25,11 +24,14 @@ import io.realm.RealmList;
 public class SettingsAdapter extends RecyclerView.Adapter<SettingsAdapter.SettingsViewHolder> {
 
     private RealmList<Setting> mSettings;
-    private Context mContext;
+    private StateChangedListener mStateChangedListener;
 
-    public SettingsAdapter(Context context, RealmList<Setting> settings) {
-        mContext = context;
+    public SettingsAdapter(RealmList<Setting> settings) {
         mSettings = settings;
+    }
+
+    public void setOnStateChangeListener(StateChangedListener stateChangedListener) {
+        mStateChangedListener = stateChangedListener;
     }
 
     @Override
@@ -62,14 +64,15 @@ public class SettingsAdapter extends RecyclerView.Adapter<SettingsAdapter.Settin
         SettingsViewHolder(final View itemView) {
             super(itemView);
             ButterKnife.bind(this, itemView);
-            itemView.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    Intent intent = new Intent(mContext , SettingEquipmentActivity.class);
-                    intent.putExtra(SettingEquipmentActivity.EXTRA_SETTING_ID, mSettings.get(getAdapterPosition()).getId());
-                    mContext.startActivity(intent);
-                }
-            });
+        }
+
+        @OnCheckedChanged(R.id.switch_setting_enable)
+        void onSettingStateChanged() {
+            if (mStateChangedListener != null) {
+                Setting setting = mSettings.get(getAdapterPosition());
+                setting.setActive(mSwitchEnable.isChecked());
+                mStateChangedListener.onStateChanged(setting);
+            }
         }
     }
 }

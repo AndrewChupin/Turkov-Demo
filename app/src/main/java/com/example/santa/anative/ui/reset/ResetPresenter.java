@@ -1,16 +1,17 @@
 package com.example.santa.anative.ui.reset;
 
+import android.util.Log;
+
 import com.example.santa.anative.R;
 import com.example.santa.anative.model.entity.Profile;
 import com.example.santa.anative.model.repository.ProfileRepository;
 import com.example.santa.anative.network.common.Observer;
 import com.example.santa.anative.network.connection.Connection;
-import com.example.santa.anative.network.connection.ConnectionManager;
 import com.example.santa.anative.network.service.ResetService;
-import com.example.santa.anative.ui.common.Presentable;
+import com.example.santa.anative.ui.common.Presenter;
 import com.example.santa.anative.util.realm.RealmSecure;
 import com.example.santa.anative.util.common.Validate;
-import com.example.santa.anative.util.network.ServiceError;
+import com.example.santa.anative.util.network.ServiceEvent;
 
 import java.util.Arrays;
 
@@ -23,7 +24,7 @@ import static com.example.santa.anative.application.Configurations.PORT;
  * Created by santa on 22.03.17.
  */
 
-public class ResetPresenter implements Presentable {
+public class ResetPresenter implements Presenter {
 
     private ResetView mResetView;
     private ResetService mResetService;
@@ -45,6 +46,7 @@ public class ResetPresenter implements Presentable {
     @Override
     public void onDestroy() {
         mRealm.close();
+        if (mResetService != null) mResetService.onStop();
     }
 
     void onSendEmail(String email) {
@@ -57,13 +59,13 @@ public class ResetPresenter implements Presentable {
         this.email = email;
         mResetView.showDialog();
 
-        Connection connection = ConnectionManager.getDefault().create(HOST, PORT);
+        Connection connection = new Connection(HOST, PORT);
         mResetService = new ResetService(connection, email, mProfile.getDeviceId());
         mResetService.onSubscribe(new Observer() {
             @Override
             public void onError(int code) {
                 switch (code) {
-                    case ServiceError.ERROR_RESPONSE:
+                    case ServiceEvent.ERROR_RESPONSE:
                         mResetView.showMessage(R.string.incorrect_response);
                         break;
                 }
@@ -72,12 +74,12 @@ public class ResetPresenter implements Presentable {
             }
 
             @Override
-            public void onComplete() {
+            public void onSuccess() {
                 mResetView.hideDialog();
                 mResetView.onEnterCode();
             }
         });
-        mResetService.onStart();
+        mResetService.execute();
     }
 
 
@@ -88,7 +90,8 @@ public class ResetPresenter implements Presentable {
 
 
     void onResetPassword(byte[] password, byte[] repeatPassword) {
-
+        Log.d("Logos", "ResetPresenter | onResetPassword | : " + Arrays.toString(password));
+        Log.d("Logos", "ResetPresenter | onResetPassword | : " + Arrays.toString(repeatPassword));
         if (Validate.isArrayNullOrEmpty(code)) {
             mResetView.showMessage(R.string.incorrect_code);
             return;
@@ -103,14 +106,14 @@ public class ResetPresenter implements Presentable {
         }
 
         mResetView.showDialog();
-        Connection connection = ConnectionManager.getDefault().create(HOST, PORT);
+        Connection connection = new Connection(HOST, PORT);
         mResetService = new ResetService(connection, email, mProfile.getDeviceId(), password, code);
         // Arrays.fill(code, (byte) 32);
         mResetService.onSubscribe(new Observer() {
             @Override
             public void onError(int code) {
                 switch (code) {
-                    case ServiceError.ERROR_RESPONSE:
+                    case ServiceEvent.ERROR_RESPONSE:
                         mResetView.showMessage(R.string.incorrect_response);
                         break;
                 }
@@ -119,12 +122,12 @@ public class ResetPresenter implements Presentable {
             }
 
             @Override
-            public void onComplete() {
+            public void onSuccess() {
                 mResetView.hideDialog();
                 mResetView.onAuth(email);
             }
         });
-        mResetService.onStart();
+        mResetService.execute();
     }
 
 

@@ -6,7 +6,7 @@ package com.example.santa.anative.util.network.reister;
 
 public class Profiles {
 
-    private static final int META_JSON = 0x7101; // Представление профиля обслуживающей организации в формате JSON объекта.
+    private static final int META_JSON = 0x7101; // Представление профиля обслуживающей организации в формате TYPE_JSON объекта.
 
     private static final int EQUIPMENT_ID = 0x0000; // Идентификатор объекта управления
     private static final int EQUIPMENT_TYPE = 0x1000; // Тип объекта управления
@@ -19,7 +19,7 @@ public class Profiles {
     private static final int EQUIPMENT_PREFIX = 0x4007; // Метка (префикс) на экране
     private static final int EQUIPMENT_SUFFIX = 0x4008; // Суффикс на экране
     private static final int EQUIPMENT_KEEP_DATA = 0x1009; // Хранимые показания, логический Метарегистры
-    private static final int EQUIPMENT_ARRAY_JSON = 0xF102; // Представление всех регистров объекта управления в виде массивов JSON объектов
+    private static final int EQUIPMENT_ARRAY_JSON = 0xF102; // Представление всех регистров объекта управления в виде массивов TYPE_JSON объектов
     private static final int EQUIPMENT_LIST = 0x9103; // Список номеров регистров объекта управления
 
     private static final int CLIENT_NUM_ID = 0x0000; // Числовой идентификатор пользователя или клиента (битовый массив/32 бита)

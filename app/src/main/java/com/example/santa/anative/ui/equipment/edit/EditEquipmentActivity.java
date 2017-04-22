@@ -12,16 +12,12 @@ import android.widget.Toast;
 
 import com.example.santa.anative.R;
 import com.example.santa.anative.model.entity.Equipment;
-import com.example.santa.anative.model.entity.Profile;
-import com.example.santa.anative.ui.equipment.addition.AdditionalPresenter;
-import com.example.santa.anative.ui.equipment.detail.EquipmentActivity;
-import com.example.santa.anative.widget.adapter.recycler.EquipmentAdapter;
+import com.example.santa.anative.util.common.ExtraKey;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 
-import static com.example.santa.anative.ui.equipment.detail.EquipmentActivity.EXTRA_EQUIPMENT_ID;
 
 public class EditEquipmentActivity extends AppCompatActivity implements EditEquipmentView {
 
@@ -56,11 +52,13 @@ public class EditEquipmentActivity extends AppCompatActivity implements EditEqui
 
     private void initializeToolbar() {
         mTvTitleEditEquipment.setText(R.string.title_edit_equipment);
-        mToolbarEditEquipment.setTitle("");
+
         setSupportActionBar(mToolbarEditEquipment);
         mToolbarEditEquipment.inflateMenu(R.menu.edit_equipment);
-        if (getSupportActionBar() != null) getSupportActionBar()
-                .setDisplayHomeAsUpEnabled(true);
+        if (getSupportActionBar() != null) {
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+            getSupportActionBar().setDisplayShowTitleEnabled(false);
+        }
     }
 
 
@@ -73,12 +71,12 @@ public class EditEquipmentActivity extends AppCompatActivity implements EditEqui
     private void initializeDialog() {
         mProgressDialog = new ProgressDialog(this);
         mProgressDialog.setCancelable(false);
-        mProgressDialog.setTitle(R.string.waiting);
+        mProgressDialog.setMessage(getString(R.string.waiting));
     }
 
 
     public void showEquipmentDetail() {
-        int equipmentId = getIntent().getIntExtra(EXTRA_EQUIPMENT_ID, -1);
+        int equipmentId = getIntent().getIntExtra(ExtraKey.EXTRA_EQUIPMENT_ID, -1);
         mEquipment = mEditEquipmentPresenter.onFindEquipment(equipmentId);
 
         if (mEquipment == null) {
@@ -101,7 +99,7 @@ public class EditEquipmentActivity extends AppCompatActivity implements EditEqui
     void onSaveEquipmentInfo() {
         mEquipment.setTitle(mEtTitle.getText().toString());
         mEquipment.setAddress(mEtAddress.getText().toString());
-        mEquipment.setCountry(mEtCountry.getText().toString());
+        mEquipment.setCountry(Integer.parseInt(mEtCountry.getText().toString()));
         mEquipment.setLocation(mEtLocal.getText().toString());
         mEquipment.setGps(mEtGps.getText().toString());
         mEditEquipmentPresenter.sendEquipment(mEquipment);

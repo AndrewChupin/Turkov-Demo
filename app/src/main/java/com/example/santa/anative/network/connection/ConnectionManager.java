@@ -1,5 +1,8 @@
 package com.example.santa.anative.network.connection;
 
+import static com.example.santa.anative.application.Configurations.HOST;
+import static com.example.santa.anative.application.Configurations.PORT;
+
 /**
  * Created by santa on 16.03.17.
  */
@@ -16,7 +19,7 @@ public class ConnectionManager {
     }
 
     public Connection create(String host, int port) {
-        return new Connection(host, port);
+        return new Connection(HOST, PORT);
     }
 
 }

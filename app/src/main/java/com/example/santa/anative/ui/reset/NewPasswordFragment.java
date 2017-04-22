@@ -38,8 +38,8 @@ public class NewPasswordFragment extends Fragment {
 
     @OnClick(R.id.btn_send_new_pass)
     void onSendNewPass()  {
-        mResetPresenter.onResetPassword(mEtPassword.toString().getBytes(),
-                mEtConfirmPassword.toString().getBytes());
+        mResetPresenter.onResetPassword(mEtPassword.getText().toString().getBytes(),
+                mEtConfirmPassword.getText().toString().getBytes());
     }
 
     @Override

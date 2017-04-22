@@ -11,7 +11,9 @@ add_library(secure SHARED
             lcsx-rand.c
 
             vscb.h
-            vscb.c)
+            vscb.c
+
+            test.c)
 
 
 # Stream Crypt Library

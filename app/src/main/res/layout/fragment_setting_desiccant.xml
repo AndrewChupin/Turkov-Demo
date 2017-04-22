@@ -4,4 +4,56 @@
               android:layout_width="match_parent"
               android:layout_height="match_parent">
 
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:padding="@dimen/low"
+        android:orientation="horizontal">
+
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginEnd="@dimen/low"
+            android:src="@drawable/ic_humidity_black_36dp"/>
+
+        <android.support.v7.widget.AppCompatSpinner
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/spinner_desiccant_schedule_humidity"
+            android:background="@drawable/shape_spinner_static"
+            android:popupBackground="@drawable/shape_dropbox_background"/>
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:padding="@dimen/low"
+        android:orientation="horizontal">
+
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginEnd="@dimen/low"
+            android:src="@drawable/ic_clock_black_36dp"/>
+
+        <android.support.v7.widget.AppCompatSpinner
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/spinner_desiccant_schedule_hours"
+            android:background="@drawable/shape_spinner_static"
+            android:popupBackground="@drawable/shape_dropbox_background"/>
+
+        <android.support.v7.widget.AppCompatSpinner
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/spinner_desiccant_schedule_minutes"
+            android:layout_marginStart="@dimen/medium"
+            android:background="@drawable/shape_spinner_static"
+            android:popupBackground="@drawable/shape_dropbox_background"/>
+
+
+    </LinearLayout>
 </LinearLayout>

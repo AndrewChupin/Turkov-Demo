@@ -11,6 +11,7 @@ import android.support.v4.app.FragmentPagerAdapter;
 import com.example.santa.anative.ui.registration.RegistrationCodeFragment;
 import com.example.santa.anative.ui.reset.EmailFragment;
 import com.example.santa.anative.ui.reset.NewPasswordFragment;
+import com.example.santa.anative.ui.reset.ResetCodeFragment;
 
 /**
  * Created by santa on 04.03.17.
@@ -33,7 +34,7 @@ public class ResetPasswordPager extends FragmentPagerAdapter {
             case 0:
                 return new EmailFragment();
             case 1:
-                return new RegistrationCodeFragment();
+                return new ResetCodeFragment();
             case 2:
                 return new NewPasswordFragment();
             default:

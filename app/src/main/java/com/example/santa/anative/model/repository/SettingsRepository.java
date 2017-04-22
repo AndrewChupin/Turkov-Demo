@@ -24,7 +24,7 @@ public class SettingsRepository {
         });
     }
 
-    public static Setting getSettinggById(Realm realm, int id) {
+    public static Setting getSettingById(Realm realm, int id) {
         return realm.where(Setting.class).equalTo("id", id).findFirstAsync();
     }
 

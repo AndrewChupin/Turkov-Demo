@@ -4,7 +4,7 @@ package com.example.santa.anative.util.network;
  * Created by santa on 18.03.17.
  */
 
-public final class ServiceError {
+public final class ServiceEvent {
 
     // Common
     public static final int ERROR_RESPONSE = 100;
@@ -21,4 +21,10 @@ public final class ServiceError {
 
     // MAIN
     public static final int ERROR_PACKAGE_OUTPUT = 601;
+
+    //CONNECT
+    public static final int ERROR_CONNECT = 700;
+    public static final int ERROR_SEND_MESSAGE = 701;
+    public static final int SERVER_DID_CONNECT = 702;
+
 }

@@ -10,7 +10,6 @@ import com.example.santa.anative.model.entity.Profile;
 
 public interface ProfileView {
 
-    void showProfileInfo(Profile profile);
     void showDialog();
     void hideDialog();
     void showMessage(@StringRes int res);

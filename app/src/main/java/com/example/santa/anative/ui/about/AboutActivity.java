@@ -36,17 +36,18 @@ public class AboutActivity extends AppCompatActivity {
 
     private void initializeToolbar() {
         mTitleAbout.setText(R.string.title_about);
-        mToolbarAbout.setTitle("");
         setSupportActionBar(mToolbarAbout);
         mToolbarAbout.inflateMenu(R.menu.edit_equipment);
-        if (getSupportActionBar() != null) getSupportActionBar()
-                .setDisplayHomeAsUpEnabled(true);
+        if (getSupportActionBar() != null) {
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+            getSupportActionBar().setDisplayShowTitleEnabled(false);
+        }
     }
 
 
     private void initializeContent() {
         try {
-            JSONObject content = new JSONObject(readFile("phonecodes.json"));
+            JSONObject content = new JSONObject(readFile("about.json"));
             mTvContent.setText(content.getString("text")); // TODO CHECK
         } catch (JSONException e) {
             e.printStackTrace();

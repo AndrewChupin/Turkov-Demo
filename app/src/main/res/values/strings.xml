@@ -61,10 +61,12 @@
     <string name="code">Код</string>
     <string name="and_or">и/или</string>
     <string name="authorization">Авторизация</string>
+    <string name="your_name">Ваше имя</string>
 
     <!--Info Messages-->
     <string name="send_code_to_email">На ваш электронный адрес был выслан код подтверждения, введите его ниже:</string>
     <string name="registration_success">Пользователь успешно зарегистрирован.</string>
+    <string name="data_saved_success">Данные успешно сохранены.</string>
     <string name="input_new_password">Введите новый пароль:</string>
     <string name="exit_question_title">Вы действительно хотите выйти?</string>
 
@@ -79,6 +81,8 @@
     <string name="user_exist">Пользователь уже существует!</string>
     <string name="code_failure">Не удалось отправить код!</string>
     <string name="registration_failure">Ошибка при регистрации!</string>
+    <string name="connection_error">Ошибка соединения!</string>
+    <string name="error_sending_data">Ошибка при отправке данных!</string>
     <string name="unknown_error">Неизвестная ошибка!</string>
 
     <!--Navigation Menu-->
@@ -108,11 +112,11 @@
         <item>Воскресение</item>
     </string-array>
 
+    <!--Ids-->
+    <item name="item_click_support" type="id" />
+
     <!--NOT EDIT AND DONT USE-->
     <string name="drawer_open">Open navigation drawer</string>
     <string name="drawer_close">Close navigation drawer</string>
-
-    <!--Ids-->
-    <item name="item_click_support" type="id" />
 
 </resources>

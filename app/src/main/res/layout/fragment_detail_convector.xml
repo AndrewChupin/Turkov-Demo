@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:orientation="vertical"
+              android:layout_width="match_parent"
+              android:layout_height="match_parent">
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content">
+            <ImageView
+                android:id="@+id/iv_convector_vent_status"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/warm"
+                android:padding="@dimen/medium"
+                android:layout_gravity="center_vertical"/>
+
+            <ImageView
+                android:id="@+id/iv_convector_temp_state"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/ic_hot_temperature_36dp"
+                android:padding="@dimen/medium"
+                android:layout_gravity="center_vertical"/>
+        </LinearLayout>
+
+        <android.support.v7.widget.SwitchCompat
+            android:id="@+id/switch_convector_detail_state"
+            android:layout_gravity="end"
+            android:layout_margin="@dimen/medium"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            style="@style/Switcher"/>
+
+    </FrameLayout>
+
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="@dimen/low"
+        android:orientation="horizontal">
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_marginEnd="@dimen/low"
+                android:src="@drawable/ic_speed_balck_36"/>
+
+            <android.support.v7.widget.AppCompatSpinner
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/spinner_convector_speed"
+                android:background="@drawable/shape_spinner_static"
+                android:popupBackground="@drawable/shape_dropbox_background"/>
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="end"
+            android:orientation="horizontal">
+
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_marginEnd="@dimen/low"
+                android:src="@drawable/ic_thermometer_black_36"/>
+
+            <android.support.v7.widget.AppCompatSpinner
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/spinner_convector_temperature"
+                android:background="@drawable/shape_spinner_static"
+                android:popupBackground="@drawable/shape_dropbox_background"/>
+
+        </LinearLayout>
+
+    </FrameLayout>
+
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/tv_convector_detail_temperature"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:padding="@dimen/low"
+            android:drawableStart="@drawable/ic_thermometer_black_36"/>
+
+        <TextView
+            android:padding="@dimen/low"
+            android:id="@+id/tv_convector_detail_filter"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:drawableStart="@drawable/ic_table_black_36dp"/>
+
+    </LinearLayout>
+</LinearLayout>

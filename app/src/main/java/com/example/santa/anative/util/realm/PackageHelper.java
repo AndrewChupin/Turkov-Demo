@@ -1,17 +1,15 @@
 package com.example.santa.anative.util.realm;
 
-import android.util.Base64;
 import android.util.Log;
 
 import com.example.santa.anative.model.entity.Package;
+import com.example.santa.anative.util.common.ByteArray;
 import com.example.santa.anative.util.common.ByteHelper;
-import com.example.santa.anative.util.common.Validate;
 
 import java.math.BigInteger;
 import java.util.Arrays;
 import java.util.Locale;
 
-import io.realm.PackageRealmProxy;
 
 /**
  * Created by santa on 29.03.17.
@@ -21,20 +19,18 @@ public final class PackageHelper {
 
     // Маска используется для преобразования параметров пакета в бинарную комманду
     private static final String CMD_BINARY_MASK = "%s%3s0%010d";
-    // Маска используется для построения из параметров пакета сообщения, пригодного для передачи на сервер
-    private static final String PACKAGE_MESSAGE_MASK = "0x%08X0x%08X0x%04X0x%04X0x%08X0x%04X";
 
     /**
      * Данная функция конвертирует входящий в нее пакет к виду, пригодному для передачи на сервер
      * @param pack объект для конвертирования
      * @return конвертированный в строку объект
      */
-    public static String convertToMessage(Package pack) {
+    public static byte[] convertToMessage(Package pack) {
         long a = System.currentTimeMillis();
         String typeBinary = getBinaryType(pack.getType());
         String registerBinary = Integer.toBinaryString(pack.getRegister());
         String formatRegister = String.format("%12s", registerBinary).replace(" ", "0");
-        int register = Integer.parseInt(typeBinary + formatRegister, 2);
+        short register = Short.parseShort(typeBinary + formatRegister, 2);
 
         String statusBinary = getBinaryStatus(pack.getStatus());
         Log.d("Logos", "PackageHelper | convertToMessage: statusBinary " + statusBinary);
@@ -44,16 +40,23 @@ public final class PackageHelper {
         Log.d("Logos", "PackageHelper | convertToMessage: lengthBinary " + lengthBinary);
         String cmdBinary = String.format(Locale.ENGLISH, CMD_BINARY_MASK , statusBinary,
                 commandBinary, Integer.parseInt(lengthBinary));
-        int cmd = Integer.parseInt(cmdBinary, 2);
+        short cmd = Short.parseShort(cmdBinary, 2);
         Log.d("Logos", "PackageHelper | convertToMessage: cmdBinary " + cmdBinary);
 
         // Sunder - 8 Recipient - 8 Cmd - 4 Register - 4 Timestamp - 8 PackageId - 4
-        String packageMessage = String.format(Locale.ENGLISH, PACKAGE_MESSAGE_MASK,
-                pack.getRecipient(), pack.getSender(), cmd, register, pack.getTimestamp(), pack.getId());
-        Log.d("Logos", "PackageHelper | convertToMessage | packageMessage: " + packageMessage);
+        ByteArray request = new ByteArray();
+        request.append(pack.getSender(),
+                pack.getRecipient(),
+                ByteHelper.shortToByteArray(cmd),
+                ByteHelper.shortToByteArray(register),
+                ByteHelper.intToByteArray(pack.getTimestamp()),
+                ByteHelper.shortToByteArray(pack.getId()),
+                pack.getMessage()
+        );
+        Log.d("Logos", "PackageHelper | convertToMessage | : " + Arrays.toString(request.array()));
         long b = System.currentTimeMillis();
         Log.d("Logos", "PackageHelper | convertToMessage | : " + (b - a));
-        return packageMessage;
+        return request.array();
     }
 
 
@@ -63,26 +66,26 @@ public final class PackageHelper {
      * @param packEncode пакет в строковом виде
      * @return конвертированная в объект, строка
      */
-    public static Package convertToPackage(String packEncode) {
+    public static Package convertToPackage(byte[] packEncode) {
         long a = System.currentTimeMillis();
         Package pack = new Package();
         /*
          * [, 1326D64B, 00000000, 0803, 0D23, 1BCD8CA0, 007B]
          * 1 - sunder 2 - recipient 3 - cmd 4 - register 5 - time 6 - id 7 - message
          */
-        String[] packageParams = packEncode.split("0x");
 
-        pack.setSender(Integer.parseInt(packageParams[1], 16));
-        pack.setRecipient(Integer.parseInt(packageParams[2], 16));
-        pack.setTimestamp(Integer.parseInt(packageParams[5], 16));
-        pack.setId(Integer.parseInt(packageParams[6], 16));
+        pack.setSender(Arrays.copyOfRange(packEncode, 0, 4));
+        pack.setRecipient(Arrays.copyOfRange(packEncode, 4, 8));
+        pack.setTimestamp(ByteHelper.byteArrayToInt(Arrays.copyOfRange(packEncode, 12, 16)));
+        pack.setId(ByteHelper.byteArrayToShort(Arrays.copyOfRange(packEncode, 16, 18)));
+        pack.setMessage(Arrays.copyOfRange(packEncode, 18, packEncode.length));
 
-        int cmdHex = Integer.parseInt(packageParams[3], 16);
+        short cmdHex = ByteHelper.byteArrayToShort(Arrays.copyOfRange(packEncode, 8, 10));
         String binaryCommand = new BigInteger(String.valueOf(cmdHex)).toString(2);
         String formatCommand = String.format("%16s", binaryCommand).replace(" ", "0");
         Log.d("Logos", "PackageHelper | convertToPackage | formatCommand: " + formatCommand);
 
-        int registerHex = Integer.parseInt(packageParams[4], 16);
+        short registerHex = ByteHelper.byteArrayToShort(Arrays.copyOfRange(packEncode, 10, 12));
         String binaryRegister = new BigInteger(String.valueOf(registerHex)).toString(2);
         String formatRegister = String.format("%16s", binaryRegister).replace(" ", "0");
         Log.d("Logos", "PackageHelper | convertToPackage | formatRegister: " + formatRegister);
@@ -103,13 +106,13 @@ public final class PackageHelper {
     private static int getStatus(String status) {
         switch (status) {
             case "00":
-                return Package.REQUEST;
+                return Package.STATUS_REQUEST;
             case "01":
-                return Package.RESPONSE;
+                return Package.STATUS_RESPONSE;
             case "10":
-                return Package.REJECT;
+                return Package.STATUS_REJECT;
             case "11":
-                return Package.UNDEFINE;
+                return Package.STATUS_UNDEFINE;
             default:
                 return -1;
         }
@@ -118,13 +121,13 @@ public final class PackageHelper {
 
     private static String getBinaryStatus(int status) {
         switch (status) {
-            case Package.REQUEST:
+            case Package.STATUS_REQUEST:
                 return "00";
-            case Package.RESPONSE:
+            case Package.STATUS_RESPONSE:
                 return "01";
-            case Package.REJECT:
+            case Package.STATUS_REJECT:
                 return "10";
-            case Package.UNDEFINE:
+            case Package.STATUS_UNDEFINE:
                 return "11";
             default:
                 return "";
@@ -135,13 +138,13 @@ public final class PackageHelper {
     private static int getCommand(String command) {
         switch (command) {
             case "000":
-                return Package.READ;
+                return Package.COMMAND_READ;
             case "001":
-                return Package.WRITE;
+                return Package.COMMAND_WRITE;
             case "010":
-                return Package.READ_BIG;
+                return Package.COMMAND_READ_BIG;
             case "011":
-                return Package.WRITE_BIG;
+                return Package.COMMAND_WRITE_BIG;
             default:
                 return -1;
         }
@@ -150,13 +153,13 @@ public final class PackageHelper {
 
     private static String getBinaryCommand(int command) {
         switch (command) {
-            case Package.READ:
+            case Package.COMMAND_READ:
                 return "000";
-            case Package.WRITE:
+            case Package.COMMAND_WRITE:
                 return "001";
-            case Package.READ_BIG:
+            case Package.COMMAND_READ_BIG:
                 return "010";
-            case Package.WRITE_BIG:
+            case Package.COMMAND_WRITE_BIG:
                 return "011";
             default:
                 return "";
@@ -167,21 +170,21 @@ public final class PackageHelper {
     private static int getType(String type) {
         switch (type) {
             case "0000":
-                return Package.INTEGER;
+                return Package.TYPE_INTEGER;
             case "0001":
-                return Package.SHORT;
+                return Package.TYPE_SHORT;
             case "0010":
-                return Package.CHAR;
+                return Package.TYPE_CHAR;
             case "0011":
-                return Package.DOUBLE;
+                return Package.TYPE_DOUBLE;
             case "0100":
-                return Package.STRING;
+                return Package.TYPE_STRING;
             case "0101":
-                return Package.FLOAT;
+                return Package.TYPE_FLOAT;
             case "0110":
-                return Package.BIG_DATA;
+                return Package.TYPE_BIG_DATA;
             case "0111":
-                return Package.JSON;
+                return Package.TYPE_JSON;
             default:
                 return -1;
         }
@@ -190,21 +193,21 @@ public final class PackageHelper {
 
     private static String getBinaryType(int type) {
         switch (type) {
-            case Package.INTEGER:
+            case Package.TYPE_INTEGER:
                 return "0000";
-            case Package.SHORT:
+            case Package.TYPE_SHORT:
                 return "0001";
-            case Package.CHAR:
+            case Package.TYPE_CHAR:
                 return "0010";
-            case Package.DOUBLE:
+            case Package.TYPE_DOUBLE:
                 return "0011";
-            case Package.STRING:
+            case Package.TYPE_STRING:
                 return "0100";
-            case Package.FLOAT:
+            case Package.TYPE_FLOAT:
                 return "0101";
-            case Package.BIG_DATA:
+            case Package.TYPE_BIG_DATA:
                 return "0110";
-            case Package.JSON:
+            case Package.TYPE_JSON:
                 return "0111";
             default:
                 return "";

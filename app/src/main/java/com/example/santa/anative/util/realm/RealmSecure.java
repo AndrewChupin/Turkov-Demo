@@ -24,8 +24,8 @@ public final class RealmSecure {
         return Realm.getInstance(configuration);
     }
 
-    // TODO GENERATE KEY
-    private static byte[] getKey() {
+
+    public static byte[] getKey() {
         byte[] key = new byte[64];
         // Arrays.fill(key, (byte) 52);
         return key;

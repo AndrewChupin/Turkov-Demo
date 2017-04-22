@@ -20,7 +20,7 @@
         android:textStyle="bold"
         android:paddingStart="@dimen/tv_header_horizontal_padding"
         android:paddingEnd="@dimen/tv_header_horizontal_padding"
-        android:text="Константинов Константин Константинович"
+        android:text="@string/your_name"
         android:textSize="@dimen/text_header_size"/>
 
 </LinearLayout>

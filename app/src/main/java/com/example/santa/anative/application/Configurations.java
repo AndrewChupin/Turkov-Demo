@@ -12,9 +12,11 @@ public class Configurations {
     public static final int MASK = 0b1010011;
 
     // DEFAULT URL OF HOST FOR CONNECTION
-    public static final String HOST = "1010011";
+    public static final String HOST = "192.168.0.240";
 
     // DEFAULT PORT FOR CONNECTION
-    public static final int PORT = 8089;
+    public static final int PORT = 9090;
+
+    public static final int MESSAGE_NOTIFICATION_ID = 435345;
 
 }

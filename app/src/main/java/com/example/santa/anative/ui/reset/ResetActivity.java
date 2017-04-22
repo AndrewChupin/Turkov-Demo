@@ -44,11 +44,12 @@ public class ResetActivity extends AppCompatActivity implements ResetView {
 
     private void initializeToolbar() {
         mToolbarTitle.setText(R.string.title_reset_password);
-        mToolbarResetPassword.setTitle("");
         setSupportActionBar(mToolbarResetPassword);
         mToolbarResetPassword.inflateMenu(R.menu.edit_equipment);
-        if (getSupportActionBar() != null) getSupportActionBar()
-                .setDisplayHomeAsUpEnabled(true);
+        if (getSupportActionBar() != null) {
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+            getSupportActionBar().setDisplayShowTitleEnabled(false);
+        }
     }
 
     private void initializePresenter() {
@@ -59,7 +60,7 @@ public class ResetActivity extends AppCompatActivity implements ResetView {
     private void initializeDialog() {
         mProgressDialog = new ProgressDialog(this);
         mProgressDialog.setCancelable(false);
-        mProgressDialog.setTitle(R.string.waiting);
+        mProgressDialog.setMessage(getString(R.string.waiting));
     }
 
     private void initializePager() {
@@ -80,6 +81,15 @@ public class ResetActivity extends AppCompatActivity implements ResetView {
         }
         return super.onOptionsItemSelected(item);
     }
+
+
+    @Override
+    public void onBackPressed() {
+        int pos = mVpResetPassword.getCurrentItem();
+        if (pos > 0) mVpResetPassword.setCurrentItem(pos - 1);
+        else super.onBackPressed();
+    }
+
 
     public ResetPresenter getPresenter() {
         return mResetPresenter;

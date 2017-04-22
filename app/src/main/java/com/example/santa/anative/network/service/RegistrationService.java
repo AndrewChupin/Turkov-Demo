@@ -2,6 +2,7 @@ package com.example.santa.anative.network.service;
 
 import android.os.AsyncTask;
 import android.util.Base64;
+import android.util.Log;
 
 import com.example.santa.anative.application.Configurations;
 import com.example.santa.anative.network.connection.Connection;
@@ -9,16 +10,14 @@ import com.example.santa.anative.network.connection.ConnectionDelegate;
 import com.example.santa.anative.network.common.Observer;
 import com.example.santa.anative.network.common.Service;
 import com.example.santa.anative.util.algorithm.KeyCrypter;
-import com.example.santa.anative.util.algorithm.Xor;
 import com.example.santa.anative.util.common.ByteArray;
 import com.example.santa.anative.util.common.ByteHelper;
-import com.example.santa.anative.util.network.ServiceError;
-import com.example.santa.anative.util.algorithm.AlgorithmUtils;
+import com.example.santa.anative.util.network.ServiceEvent;
+import com.example.santa.anative.util.algorithm.Generator;
 import com.example.santa.anative.util.algorithm.HkdfSha1;
 import com.example.santa.anative.util.common.Validate;
 
-import java.nio.ByteBuffer;
-import java.util.Formatter;
+import java.util.Arrays;
 import java.util.Locale;
 
 /**
@@ -37,6 +36,7 @@ public class RegistrationService extends AsyncTask<String, Integer, Void> implem
     private byte[] code;
 
     private boolean isCode;
+    private boolean isSuccess;
 
     // Server markers
     private static final String SERVER_HELLO_MESSAGE = "H";
@@ -62,7 +62,6 @@ public class RegistrationService extends AsyncTask<String, Integer, Void> implem
         mConnection = connection;
         this.email = email;
         this.deviceId = device;
-        mConnection.attachDelegate(this);
     }
 
     /**
@@ -76,7 +75,6 @@ public class RegistrationService extends AsyncTask<String, Integer, Void> implem
         this.code = code;
         this.email = email;
         this.deviceId = device;
-        mConnection.attachDelegate(this);
     }
 
     /**
@@ -85,7 +83,7 @@ public class RegistrationService extends AsyncTask<String, Integer, Void> implem
      */
     @Override
     protected Void doInBackground(String... params) {
-        mConnection.start();
+        mConnection.start(this);
         return null;
     }
 
@@ -106,9 +104,12 @@ public class RegistrationService extends AsyncTask<String, Integer, Void> implem
      *  @see AsyncTask
      */
     @Override
-    protected void onPostExecute(Void aVoid) {
-        super.onPostExecute(aVoid);
-        if (mObserver != null) mObserver.onComplete();
+    protected void onPostExecute(Void isComplete) {
+        super.onPostExecute(isComplete);
+        onStop();
+        if (mObserver != null && isSuccess) {
+            mObserver.onSuccess();
+        }
     }
 
 
@@ -118,18 +119,7 @@ public class RegistrationService extends AsyncTask<String, Integer, Void> implem
      */
     @Override
     public void onStop() {
-        if (!isCancelled()) cancel(true);
         mConnection.stopClient();
-    }
-
-
-    /**
-     *  Override from Service
-     *  @see Service
-     */
-    @Override
-    public void onStart() {
-        this.execute();
     }
 
 
@@ -148,45 +138,62 @@ public class RegistrationService extends AsyncTask<String, Integer, Void> implem
      *  @see ConnectionDelegate
      */
     @Override
+    public void onConnectionEvent(int code) {
+        switch (code) {
+            case ServiceEvent.ERROR_SEND_MESSAGE:
+                publishProgress(ServiceEvent.ERROR_SEND_MESSAGE);
+                break;
+            case ServiceEvent.ERROR_CONNECT:
+                publishProgress(ServiceEvent.ERROR_CONNECT);
+                break;
+        }
+    }
+
+    /**
+     *  Override from ConnectionDelegate
+     *  @see ConnectionDelegate
+     */
+    @Override
     public void messageReceived(byte[] response) {
         try {
+            Log.d("Logos", "RegistrationService | messageReceived | : " + new String(response));
             String[] sessionParams = new String(response).split("\\s+");
+            Log.d("Logos", "RegistrationService | messageReceived | : " + Arrays.toString(sessionParams));
             switch (sessionParams[0]) {
-                // SUCCESS RESPONSE
+                // SUCCESS STATUS_RESPONSE
                 case SERVER_HELLO_MESSAGE:
                     startRegistrationProtocol(sessionParams[1]);
                     break;
                 case SERVER_EXIST_REFRESH:
-                    mObserver.onComplete();
-                    break;
                 case SERVER_CODE_SUCCESS:
-                    mObserver.onComplete();
-                    break;
                 case SERVER_REGISTRATION_SUCCESS:
-                    mObserver.onComplete();
+                    isSuccess = true;
+                    onStop();
                     break;
 
-                // FAILURE RESPONSE
+                // FAILURE STATUS_RESPONSE
                 case SERVER_CODE_FAILURE:
-                    publishProgress(ServiceError.ERROR_CODE_FAILURE);
+                    publishProgress(ServiceEvent.ERROR_CODE_FAILURE);
                     break;
                 case SERVER_EXIST_FAILURE:
-                    publishProgress(ServiceError.ERROR_USER_EXIST);
+                    publishProgress(ServiceEvent.ERROR_USER_EXIST);
                     break;
                 case SERVER_REGISTRATION_FAILED:
-                    publishProgress(ServiceError.ERROR_REGISTRATION_FAILED);
+                    publishProgress(ServiceEvent.ERROR_REGISTRATION_FAILED);
                     break;
                 case SERVER_INCORRECT_PASSWORD:
-                    publishProgress(ServiceError.ERROR_INCORRECT_PASSWORD);
+                    publishProgress(ServiceEvent.ERROR_INCORRECT_PASSWORD);
                     break;
                 default:
-                    publishProgress(ServiceError.ERROR_RESPONSE);
+                    publishProgress(ServiceEvent.ERROR_RESPONSE);
                     break;
             }
         } catch (Exception exception) {
-            publishProgress(ServiceError.ERROR_UNKNOWN);
+            exception.printStackTrace();
+            publishProgress(ServiceEvent.ERROR_UNKNOWN);
         }
     }
+
 
     /**
      *
@@ -196,27 +203,31 @@ public class RegistrationService extends AsyncTask<String, Integer, Void> implem
      * @param serverName имя сервера
      */
     private void startRegistrationProtocol(String serverName) {
+        Log.d("Logos", "RegistrationService | startRegistrationProtocol | : " + serverName);
         if (!Validate.isNullOrEmpty(serverName) && serverName.equals(Configurations.SERVER_NAME)) {
+            Log.d("Logos", "RegistrationService | startRegistrationProtocol | 1: ");
             String clientId = String.format(Locale.ENGLISH, "%s#%s", email, deviceId);
-            if (isCode) {
+            if (!isCode) {
                 ByteArray response = new ByteArray();
                 response.appendWithSplit(ByteHelper.SPACE,
                         CLIENT_REGISTRATION_REQUEST.getBytes(),
                         clientId.getBytes(),
-                        AlgorithmUtils.generateAbilitiesMask())
+                        Generator.generateAbilitiesMask())
                         .append(ByteHelper.NL);
                 mConnection.sendMessage(response.array());
             } else {
                 ByteArray block = new ByteArray();
+                Log.d("Logos", "RegistrationService | startRegistrationProtocol | : " + password.length);
+                Log.d("Logos", "RegistrationService | startRegistrationProtocol | : " + code.length);
                 block.append(code)
                         .append(ByteHelper.COMMA)
                         .append(ByteHelper.NULL)
                         .append(ByteHelper.COMMA)
-                        .append(ByteHelper.intToByteArray(password.length))
+                        .append((byte) password.length)
                         .append(ByteHelper.COMMA)
                         .append(password)
                         .append(ByteHelper.COMMA)
-                        .fillFreeRandom(180);
+                        .fillFreeRandom(128);
 
                 byte[] key = HkdfSha1.deriveKey(code,
                         clientId.getBytes(),
@@ -229,48 +240,14 @@ public class RegistrationService extends AsyncTask<String, Integer, Void> implem
                 response.appendWithSplit(ByteHelper.SPACE,
                         CLIENT_REGISTRATION_CONFIRM.getBytes(),
                         clientId.getBytes(),
-                        AlgorithmUtils.generateAbilitiesMask(),
-                        Base64.encode(encode, Base64.DEFAULT))
+                        Generator.generateAbilitiesMask(),
+                        Base64.encode(encode, Base64.NO_WRAP))
                         .append(ByteHelper.NL);
+                Log.d("Logos", "RegistrationService | startRegistrationProtocol | : " + Arrays.toString(response.array()));
                 mConnection.sendMessage(response.array());
-
-                // Arrays.fill(password, (byte) 32);
-                // Arrays.fill(encode, (byte) 32);
-                // Arrays.fill(key, (byte) 32);
-                // block.reset();
             }
         } else {
-            publishProgress(ServiceError.ERROR_RESPONSE);
+            publishProgress(ServiceEvent.ERROR_RESPONSE);
         }
-    }
-
-
-    /**
-     *
-     * @param marker маркер запроса
-     * @param email email пользователя для регистрации
-     * @param deviceId уникальный идентификатор устройства
-     * @param mask маска возможностей клиента
-     * @return строка запроса
-     */
-    private String generateRegistrationRequest(String marker, String email, String deviceId, String mask) {
-        Formatter request = new Formatter();
-        request.format(Locale.ENGLISH, "%s %s#%s %s%n", marker, email, deviceId, mask);
-        return request.toString();
-    }
-
-
-    /**
-     *
-     * @param marker маркер запроса
-     * @param email email пользователя для регистрации
-     * @param deviceId уникальный идентификатор устройства
-     * @param mask маска возможностей клиента
-     * @return строка запроса
-     */
-    private String generateConfirmRequest(String marker, String email, String deviceId, String mask, String block) {
-        Formatter request = new Formatter();
-        request.format(Locale.ENGLISH, "%s %s#%s %s %s%n", marker, email, deviceId, mask, block);
-        return request.toString();
     }
 }

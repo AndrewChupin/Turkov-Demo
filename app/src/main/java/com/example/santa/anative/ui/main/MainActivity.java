@@ -14,16 +14,20 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.TextView;
 
 import com.example.santa.anative.R;
 import com.example.santa.anative.model.entity.Equipment;
+import com.example.santa.anative.service.notification.RegistrationIntentService;
 import com.example.santa.anative.ui.about.AboutActivity;
 import com.example.santa.anative.ui.equipment.addition.AdditionEquipmentActivity;
 import com.example.santa.anative.ui.profile.ProfileActivity;
 import com.example.santa.anative.widget.adapter.recycler.EquipmentAdapter;
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.GoogleApiAvailability;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -38,6 +42,8 @@ public class MainActivity extends AppCompatActivity implements MainView {
     @BindView(R.id.navigation_view) NavigationView mNavigationView;
     @BindView(R.id.rv_equipments) RecyclerView mRvEquipments;
 
+    public static final int PLAY_SERVICES_RESOLUTION_REQUEST = 1132;
+
     private ActionBarDrawerToggle mActionBarDrawerToggle;
     private ProgressDialog mProgressDialog;
     private EquipmentAdapter equipmentAdapter;
@@ -51,18 +57,21 @@ public class MainActivity extends AppCompatActivity implements MainView {
 
         initializeNavigation();
         initializePresenter();
+        initializePushMessages();
         initializeDialog();
     }
 
+
     private void initializeNavigation() {
         mTvTitleEquipment.setText(R.string.title_equipment);
-        mToolbar.setTitle("");
         setSupportActionBar(mToolbar);
 
         mActionBarDrawerToggle = new ActionBarDrawerToggle(this,
                 mDrawerLayout, mToolbar, R.string.drawer_open, R.string.drawer_close);
         mDrawerLayout.addDrawerListener(mActionBarDrawerToggle);
-
+        if (getSupportActionBar() != null) {
+            getSupportActionBar().setDisplayShowTitleEnabled(false);
+        } // TODO TITLE HIDE
         mNavigationView.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
             @Override
             public boolean onNavigationItemSelected(@NonNull MenuItem item) {
@@ -72,15 +81,25 @@ public class MainActivity extends AppCompatActivity implements MainView {
         });
     }
 
+
     private void initializePresenter() {
         mainPresenter = new MainPresenter(this);
         mainPresenter.onCreate();
     }
 
+
     private void initializeDialog() {
         mProgressDialog = new ProgressDialog(this);
         mProgressDialog.setCancelable(false);
-        mProgressDialog.setTitle(R.string.waiting);
+        mProgressDialog.setMessage(getString(R.string.waiting));
+    }
+
+
+    private void initializePushMessages() {
+        if (checkPlayServices()) {
+            Intent intent = new Intent(this, RegistrationIntentService.class);
+            startService(intent);
+        }
     }
 
 
@@ -91,6 +110,7 @@ public class MainActivity extends AppCompatActivity implements MainView {
         mActionBarDrawerToggle.syncState();
     }
 
+
     @Override
     public void onConfigurationChanged(Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
@@ -98,10 +118,12 @@ public class MainActivity extends AppCompatActivity implements MainView {
         mActionBarDrawerToggle.onConfigurationChanged(newConfig);
     }
 
+
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         return mActionBarDrawerToggle.onOptionsItemSelected(item) || super.onOptionsItemSelected(item);
     }
+
 
     public void selectDrawerItem(MenuItem menuItem) {
         Intent startActivityIntent = null;
@@ -188,6 +210,24 @@ public class MainActivity extends AppCompatActivity implements MainView {
     @Override
     public void updateEquipments() {
         equipmentAdapter.notifyDataSetChanged();
+    }
+
+
+    private boolean checkPlayServices() {
+        GoogleApiAvailability apiAvailability = GoogleApiAvailability.getInstance();
+        int resultCode = apiAvailability.isGooglePlayServicesAvailable(this);
+        if (resultCode != ConnectionResult.SUCCESS) {
+            if (apiAvailability.isUserResolvableError(resultCode)) {
+                Log.i("Logos", "isUserResolvableError");
+                apiAvailability.getErrorDialog(this, resultCode, PLAY_SERVICES_RESOLUTION_REQUEST)
+                        .show();
+            } else {
+                Log.i("Logos", "This device is not supported.");
+                finish();
+            }
+            return false;
+        }
+        return true;
     }
 
 

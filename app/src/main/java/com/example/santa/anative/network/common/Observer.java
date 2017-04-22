@@ -8,5 +8,5 @@ import com.example.santa.anative.model.entity.Profile;
 
 public interface Observer {
     void onError(int code);
-    void onComplete();
+    void onSuccess();
 }

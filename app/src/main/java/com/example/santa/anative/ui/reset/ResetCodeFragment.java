@@ -37,7 +37,7 @@ public class ResetCodeFragment extends Fragment {
 
     @OnClick(R.id.btn_send_code)
     void onSendCode() {
-        mResetPresenter.onCheckCode(mEtCode.toString().getBytes());
+        mResetPresenter.onCheckCode(mEtCode.getText().toString().getBytes());
     }
 
     @Override

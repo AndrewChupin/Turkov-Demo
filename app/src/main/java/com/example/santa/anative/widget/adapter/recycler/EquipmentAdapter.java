@@ -12,6 +12,7 @@ import android.widget.TextView;
 import com.example.santa.anative.R;
 import com.example.santa.anative.model.entity.Equipment;
 import com.example.santa.anative.ui.equipment.detail.EquipmentActivity;
+import com.example.santa.anative.util.common.ExtraKey;
 
 import java.util.ArrayList;
 
@@ -73,7 +74,7 @@ public class EquipmentAdapter extends RecyclerView.Adapter<EquipmentAdapter.Equi
         @OnClick(R.id.cv_equipment_item)
         void onDetailEquipment() {
             Intent intent = new Intent(mContext , EquipmentActivity.class);
-            intent.putExtra(EquipmentActivity.EXTRA_EQUIPMENT_ID, mEquipmentList.get(getAdapterPosition()).getId());
+            intent.putExtra(ExtraKey.EXTRA_EQUIPMENT_ID, mEquipmentList.get(getAdapterPosition()).getId());
             mContext.startActivity(intent);
         }
     }

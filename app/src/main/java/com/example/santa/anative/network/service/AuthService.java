@@ -1,7 +1,6 @@
 package com.example.santa.anative.network.service;
 
 import android.os.AsyncTask;
-import android.os.Bundle;
 import android.util.Base64;
 
 import com.example.santa.anative.application.Configurations;
@@ -16,13 +15,12 @@ import com.example.santa.anative.util.algorithm.StreamCrypt;
 import com.example.santa.anative.util.realm.RealmSecure;
 import com.example.santa.anative.util.common.ByteArray;
 import com.example.santa.anative.util.common.ByteHelper;
-import com.example.santa.anative.util.network.ServiceError;
-import com.example.santa.anative.util.algorithm.AlgorithmUtils;
+import com.example.santa.anative.util.network.ServiceEvent;
+import com.example.santa.anative.util.algorithm.Generator;
 import com.example.santa.anative.util.algorithm.HkdfSha1;
 import com.example.santa.anative.util.common.Validate;
 
 import java.util.ArrayList;
-import java.util.Formatter;
 import java.util.Locale;
 
 import io.realm.Realm;
@@ -42,6 +40,8 @@ public class AuthService extends AsyncTask<Void, Object, Void> implements Servic
     private String email;
     private byte[] password;
     private byte[] okm;
+
+    private boolean isSuccess;
 
     // Server markers
     private static final String SERVER_HELLO_MESSAGE = "H";
@@ -65,7 +65,6 @@ public class AuthService extends AsyncTask<Void, Object, Void> implements Servic
         this.email = email;
         this.password = password;
         if (connection == null) throw new NullPointerException();
-        mConnection.attachDelegate(this);
     }
 
     /**
@@ -74,7 +73,7 @@ public class AuthService extends AsyncTask<Void, Object, Void> implements Servic
      */
     @Override
     protected Void doInBackground(Void... params) {
-        mConnection.start();
+        mConnection.start(this);
         return null;
     }
 
@@ -101,7 +100,10 @@ public class AuthService extends AsyncTask<Void, Object, Void> implements Servic
         Realm realm = RealmSecure.getDefault();
         ProfileRepository.updateProfile(realm, mProfile);
         realm.close();
-        if (mObserver != null) mObserver.onComplete();
+        onStop();
+        if (mObserver != null && isSuccess) {
+            mObserver.onSuccess();
+        }
     }
 
 
@@ -111,17 +113,7 @@ public class AuthService extends AsyncTask<Void, Object, Void> implements Servic
      */
     @Override
     public void onStop() {
-        if (!isCancelled()) cancel(true);
         mConnection.stopClient();
-    }
-
-    /**
-     *  Override from Service
-     *  @see Service
-     */
-    @Override
-    public void onStart() {
-        this.execute();
     }
 
     /**
@@ -131,6 +123,23 @@ public class AuthService extends AsyncTask<Void, Object, Void> implements Servic
     @Override
     public void onSubscribe(Observer observer) {
         mObserver = observer;
+    }
+
+
+    /**
+     *  Override from ConnectionDelegate
+     *  @see ConnectionDelegate
+     */
+    @Override
+    public void onConnectionEvent(int code) {
+        switch (code) {
+            case ServiceEvent.ERROR_SEND_MESSAGE:
+                publishProgress(ServiceEvent.ERROR_SEND_MESSAGE);
+                break;
+            case ServiceEvent.ERROR_CONNECT:
+                publishProgress(ServiceEvent.ERROR_CONNECT);
+                break;
+        }
     }
 
 
@@ -156,11 +165,11 @@ public class AuthService extends AsyncTask<Void, Object, Void> implements Servic
                     startFinishProtocol(sessionParams[1]);
                     break;
                 default:
-                    publishProgress(ServiceError.ERROR_RESPONSE);
+                    publishProgress(ServiceEvent.ERROR_RESPONSE);
                     break;
             }
         } catch (Exception exception) {
-            publishProgress(ServiceError.ERROR_RESPONSE);
+            publishProgress(ServiceEvent.ERROR_UNKNOWN);
         }
     }
 
@@ -174,36 +183,19 @@ public class AuthService extends AsyncTask<Void, Object, Void> implements Servic
      */
     private void startBeginProtocol(String serverName) {
         if (!Validate.isNullOrEmpty(serverName) && serverName.equals(Configurations.SERVER_NAME)) {
-            int randomInt = AlgorithmUtils.generateSecureRandom();
-            byte[] random = AlgorithmUtils.generateHexArrayRandom(randomInt);
+            byte[] random = Generator.generateSecureRandom(Generator.INT);
             String clientId = String.format(Locale.ENGLISH, "%s#%s", email, mProfile.getDeviceId());
-            mProfile.setRandomKey(ByteHelper.intToByteArray(randomInt)); // TODO TRIM BYTE ARRAY CHECK WHERE TEST
+            mProfile.setRandomKey(random);
             ByteArray response = new ByteArray();
             response.appendWithSplit(ByteHelper.SPACE,
                     CLIENT_HELLO_MESSAGE.getBytes(),
                     clientId.getBytes(),
-                    AlgorithmUtils.generateAbilitiesMask(),
+                    Generator.generateAbilitiesMask(),
                     random)
                     .append(ByteHelper.NL);
 
             mConnection.sendMessage(response.array());
-        } else publishProgress(ServiceError.ERROR_RESPONSE);
-    }
-
-
-    /**
-     * Генерирует ответ на сообщение приветствия от сервера, данный ответ опеределяет настоящий протокол
-     * @param marker маркер запроса
-     * @param email email пользователя для регистрации
-     * @param deviceId уникальный идентификатор устройства
-     * @param mask маска возможностей клиента HEX
-     * @param random рандомное число, оборачивается в HEX, через Formatter
-     * @return строка запроса
-     */
-    private String generateSessionRequest(String marker, String email, String deviceId, String mask, int random) {
-        Formatter request = new Formatter();
-        request.format(Locale.ENGLISH, "%s %s#%s %s %8H%n", marker, email, deviceId, mask, random);
-        return request.toString();
+        } else publishProgress(ServiceEvent.ERROR_RESPONSE);
     }
 
 
@@ -219,9 +211,9 @@ public class AuthService extends AsyncTask<Void, Object, Void> implements Servic
      */
     private void startCompareProtocol(String sessionParams) {
         if (!Validate.isNullOrEmpty(sessionParams)) {
-            byte[] arr = Base64.decode(sessionParams, Base64.DEFAULT);
-            ArrayList<byte[]> params = ByteHelper.split(arr, ByteHelper.COMMA); // TODO CHECK WHERE TEST
-            // TODO WELL CAPABILITIES-ACCEPTED
+            byte[] arr = Base64.decode(sessionParams, Base64.NO_WRAP);
+            ArrayList<byte[]> params = ByteHelper.split(arr, ByteHelper.COMMA);
+
             int length = ByteHelper.byteArrayToInt(params.get(1));
             okm = HkdfSha1.deriveKeyIsl(password, mProfile.getRandomKey(), length);
             // Arrays.fill(password, (byte) 32);
@@ -237,9 +229,9 @@ public class AuthService extends AsyncTask<Void, Object, Void> implements Servic
             mProfile.setTimestamp(paramsDecode.get(3)); // T
             mProfile.setSessionTime(paramsDecode.get(4)); // L
 
-            int timestamp = ByteHelper.byteArrayToInt(paramsDecode.get(3)) - 1;
+            int timestamp = ByteHelper.byteArrayToInt(paramsDecode.get(3)) - 1; // TIMESTAMP
             byte[] kc = StreamCrypt.encrypt(mProfile.getKeyFirst(), mProfile.getKeySecond(), String.valueOf(timestamp).getBytes());
-            byte[] confirm = Base64.encode(kc, Base64.DEFAULT);
+            byte[] confirm = Base64.encode(kc, Base64.NO_WRAP);
             // for (byte[] temp : paramsDecode) Arrays.fill(temp, (byte) 32);
             // Arrays.fill(kc, (byte) 32);
 
@@ -250,20 +242,7 @@ public class AuthService extends AsyncTask<Void, Object, Void> implements Servic
                     .append(ByteHelper.NL);
 
             mConnection.sendMessage(response.array());
-        } else publishProgress(ServiceError.ERROR_RESPONSE);
-    }
-
-
-    /**
-     *
-     * Данный метод генерирует запрос с проверочным сообщением
-     * @param message = Base64(Ek(Timestamp - 1))
-     * @return строка запроса
-     */
-    private String generateConfirmMessage(String marker, String message) {
-        Formatter request = new Formatter();
-        request.format(Locale.ENGLISH, "%s %s%n", marker, message);
-        return request.toString();
+        } else publishProgress(ServiceEvent.ERROR_RESPONSE);
     }
 
 
@@ -277,7 +256,7 @@ public class AuthService extends AsyncTask<Void, Object, Void> implements Servic
      */
     private void startTokenProtocol(String sessionParams) {
         if (!Validate.isNullOrEmpty(sessionParams)) {
-            byte[] arr = Base64.decode(sessionParams, Base64.DEFAULT);
+            byte[] arr = Base64.decode(sessionParams, Base64.NO_WRAP);
             byte[] closeToken = KeyCrypter.decode(okm, arr);
 
             mProfile.setToken(closeToken);
@@ -285,27 +264,18 @@ public class AuthService extends AsyncTask<Void, Object, Void> implements Servic
             ByteArray array = new ByteArray();
             array.appendWithSplit(ByteHelper.COMMA, mProfile.getSessionId(), closeToken);
 
-            byte[] message = Base64.encode(array.array(), Base64.DEFAULT);
+            byte[] message = Base64.encode(array.array(), Base64.NO_WRAP);
 
-            generateTokenMessage(CLIENT_SEND_TOKEN, new String(message));
+            ByteArray request = new ByteArray();
+            request.appendWithSplit(ByteHelper.SPACE, CLIENT_SEND_TOKEN.getBytes(), message)
+                    .append(ByteHelper.NL);
+
+            mConnection.sendMessage(request.array());
 
             // Arrays.fill(okm, (byte) 32);
             // byteBuffer.clear();
 
-        } else publishProgress(ServiceError.ERROR_RESPONSE);
-    }
-
-
-    /**
-     *
-     * Данный метод генерирует запрос с проверочным сообщением
-     * @param token Output-Token = BASE64(Session-Id,Token)
-     * @return строка запроса
-     */
-    private String generateTokenMessage(String marker, String token) {
-        Formatter request = new Formatter();
-        request.format(Locale.ENGLISH, "%s %s%n", marker, token);
-        return request.toString();
+        } else publishProgress(ServiceEvent.ERROR_RESPONSE);
     }
 
 
@@ -317,10 +287,13 @@ public class AuthService extends AsyncTask<Void, Object, Void> implements Servic
      */
     private void startFinishProtocol(String sessionParam) {
         if (!Validate.isNullOrEmpty(sessionParam)) {
-            byte[] clientId = Base64.decode(sessionParam, Base64.DEFAULT);
+            byte[] clientId = Base64.decode(sessionParam, Base64.NO_WRAP);
             mProfile.setClientId(Integer.parseInt(new String(clientId)));
-            mConnection.stopClient();
-        } else publishProgress(ServiceError.ERROR_RESPONSE);
+            isSuccess = true;
+            onStop();
+        } else {
+            publishProgress(ServiceEvent.ERROR_RESPONSE);
+        }
 
     }
 }

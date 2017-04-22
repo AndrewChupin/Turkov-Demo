@@ -37,7 +37,7 @@ public class RegistrationCodeFragment extends Fragment {
 
     @OnClick(R.id.btn_send_code)
     void onSendCode() {
-        mRegistrationPresenter.onCreateServiceUser(mEtCode.toString().getBytes());
+        mRegistrationPresenter.onCreateServiceUser(mEtCode.getText().toString().getBytes());
 
     }
 

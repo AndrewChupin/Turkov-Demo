@@ -10,12 +10,14 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.santa.anative.R;
+import com.example.santa.anative.model.entity.Equipment;
+import com.example.santa.anative.util.common.ExtraKey;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 
-public class AdditionEquipmentActivity extends AppCompatActivity implements AdditionalView {
+public class AdditionEquipmentActivity extends AppCompatActivity implements AdditionView {
 
 
     @BindView(R.id.toolbar_title) TextView mTitleAdditionEquipment;
@@ -24,7 +26,8 @@ public class AdditionEquipmentActivity extends AppCompatActivity implements Addi
     @BindView(R.id.et_equipment_serial) TextView mEtSerialNumber;
     @BindView(R.id.toolbar_addition_equipment) Toolbar mToolbarAdditionEquipment;
 
-    private AdditionalPresenter mAdditionalPresenter;
+    private AdditionEquipmentPresenter mAdditionalPresenter;
+    private Equipment mEquipment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -38,23 +41,24 @@ public class AdditionEquipmentActivity extends AppCompatActivity implements Addi
 
     private void initializeToolbar() {
         mTitleAdditionEquipment.setText(R.string.title_addition_equipment);
-        mToolbarAdditionEquipment.setTitle("");
         setSupportActionBar(mToolbarAdditionEquipment);
         mToolbarAdditionEquipment.inflateMenu(R.menu.edit_equipment);
-        if (getSupportActionBar() != null) getSupportActionBar()
-                .setDisplayHomeAsUpEnabled(true);
+        if (getSupportActionBar() != null) {
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+            getSupportActionBar().setDisplayShowTitleEnabled(false);
+        }
     }
 
 
     private void initializePresenter() {
-        mAdditionalPresenter = new AdditionalPresenter(this);
+        mAdditionalPresenter = new AdditionEquipmentPresenter(this);
         mAdditionalPresenter.onCreate();
     }
 
 
     @OnClick(R.id.btn_create_equipment)
     public void onCreateEquipment() {
-        mAdditionalPresenter.onServiceCreateEquipment("SPINNER TEXT", // TODO
+        mAdditionalPresenter.onCreateEquipment("SPINNER TEXT", // TODO
                 mEtPinCode.getText().toString().getBytes(),
                 mEtSerialNumber.getText().toString());
     }
@@ -72,7 +76,7 @@ public class AdditionEquipmentActivity extends AppCompatActivity implements Addi
 
 
     @Override
-    public void onMessage(@StringRes int res) {
+    public void showMessage(@StringRes int res) {
         Toast.makeText(this, res, Toast.LENGTH_SHORT).show();
     }
 

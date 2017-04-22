@@ -1,11 +1,12 @@
 package com.example.santa.anative.ui.equipment.addition;
 
+import com.example.santa.anative.model.entity.Package;
+import com.example.santa.anative.model.pack.EquipmentPackage;
+import com.example.santa.anative.model.repository.ProfileRepository;
 import com.example.santa.anative.network.common.Observer;
 import com.example.santa.anative.network.connection.Connection;
-import com.example.santa.anative.network.connection.ConnectionManager;
-import com.example.santa.anative.network.service.AuthService;
 import com.example.santa.anative.network.service.MainService;
-import com.example.santa.anative.ui.common.Presentable;
+import com.example.santa.anative.ui.common.Presenter;
 import com.example.santa.anative.util.realm.RealmSecure;
 
 import io.realm.Realm;
@@ -17,13 +18,13 @@ import static com.example.santa.anative.application.Configurations.PORT;
  * Created by santa on 27.03.17.
  */
 
-public class AdditionalPresenter implements Presentable {
+public class AdditionEquipmentPresenter implements Presenter {
 
     private Realm mRealm;
-    private AdditionalView mAdditionalView;
+    private AdditionView mAdditionalView;
 
 
-    AdditionalPresenter(AdditionalView additionalView) {
+    AdditionEquipmentPresenter(AdditionView additionalView) {
         mAdditionalView = additionalView;
     }
 
@@ -34,23 +35,25 @@ public class AdditionalPresenter implements Presentable {
     }
 
 
-    void onServiceCreateEquipment(String name, byte[] pin, String serial) {
-        // TODO CRATE PACKAGE
+    void onCreateEquipment(String name, byte[] pin, String serial) {
+        int senderId = ProfileRepository.getProfile(mRealm).getClientId();
+        Package pack = EquipmentPackage.createAdditionEquipmentPackage(senderId, name, pin, serial);
 
-        Connection connection = ConnectionManager.getDefault().create(HOST, PORT);
-        MainService mainService = new MainService(connection);
+        Connection connection = new Connection(HOST, PORT);
+        final MainService mainService = new MainService(connection, pack);
         mainService.onSubscribe(new Observer() {
             @Override
             public void onError(int code) {
-                mAdditionalView.onMessage(code);
+                mAdditionalView.showMessage(code);
+                mainService.onStop();
             }
 
             @Override
-            public void onComplete() {
+            public void onSuccess() {
                 mAdditionalView.onCreateSuccess();
             }
         });
-        mainService.onStart();
+        mainService.execute();
     }
 
 

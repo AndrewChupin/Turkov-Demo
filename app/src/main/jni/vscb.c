@@ -1,4 +1,7 @@
 #include <stdint.h>
+#include <stdlib.h>
+#include <stdio.h>
+
 #include "vscb.h"
 /* Инициализация контекста шифра буфером с одноразовым ключом
  */

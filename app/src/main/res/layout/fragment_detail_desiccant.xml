@@ -3,5 +3,74 @@
               android:orientation="vertical"
               android:layout_width="match_parent"
               android:layout_height="match_parent">
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
 
+        <FrameLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content">
+
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:gravity="center"
+                android:padding="@dimen/low"
+                android:src="@drawable/ic_humidity_black_36dp"/>
+
+            <android.support.v7.widget.AppCompatSpinner
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/low"
+                android:layout_gravity="end"
+                android:id="@+id/spinner_desiccant_humidity"
+                android:background="@drawable/shape_spinner_static"
+                android:popupBackground="@drawable/shape_dropbox_background"/>
+
+        </FrameLayout>
+
+        <android.support.v7.widget.SwitchCompat
+            android:id="@+id/switch_desiccant_detail_state"
+            android:layout_gravity="end"
+            android:layout_margin="@dimen/medium"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            style="@style/Switcher"/>
+
+    </FrameLayout>
+
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <TextView
+            android:id="@+id/tv_desiccant_detail_humidity"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="start"
+            android:gravity="center"
+            android:padding="@dimen/low"
+            android:drawableStart="@drawable/ic_humidity_black_36dp"/>
+
+        <TextView
+            android:padding="@dimen/low"
+            android:id="@+id/tv_desiccant_detail_temperature"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:gravity="center"
+            android:drawableStart="@drawable/ic_thermometer_black_36"/>
+
+        <TextView
+            android:id="@+id/tv_desiccant_detail_filter"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:drawableStart="@drawable/ic_table_black_36dp"
+            android:padding="@dimen/low"
+            android:layout_gravity="end"/>
+
+    </FrameLayout>
 </LinearLayout>

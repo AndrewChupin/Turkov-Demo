@@ -5,18 +5,25 @@ import android.util.Base64;
 
 import com.example.santa.anative.model.entity.Package;
 import com.example.santa.anative.model.entity.Profile;
+import com.example.santa.anative.model.repository.PackageRepository;
+import com.example.santa.anative.model.repository.ProfileRepository;
 import com.example.santa.anative.network.common.Observer;
 import com.example.santa.anative.network.common.Service;
 import com.example.santa.anative.network.connection.Connection;
 import com.example.santa.anative.network.connection.ConnectionDelegate;
+import com.example.santa.anative.util.algorithm.KeyCrypter;
+import com.example.santa.anative.util.common.ByteArray;
 import com.example.santa.anative.util.common.ByteHelper;
-import com.example.santa.anative.util.network.ServiceError;
+import com.example.santa.anative.util.network.ServiceEvent;
+import com.example.santa.anative.util.network.reister.Register;
+import com.example.santa.anative.util.realm.PackageHelper;
+import com.example.santa.anative.util.realm.RealmSecure;
 
 import java.util.ArrayList;
 import java.util.Formatter;
 import java.util.Locale;
 
-import io.realm.RealmList;
+import io.realm.Realm;
 import io.realm.RealmResults;
 
 /**
@@ -27,12 +34,14 @@ public class MainService extends AsyncTask<String, Integer, Void> implements Ser
 
     private Connection mConnection;
     private Observer mObserver;
+
     private Profile mProfile;
     private Package mPackage;
+    private Realm mRealm;
+
     private RealmResults<Package> mPackages;
 
-    // Server markers
-    private static final String SERVER_HELLO_MESSAGE = "H";
+    private boolean isSuccess;
 
     // Registration
     private static final String SERVER_REPORT_QUEUE = "Q";
@@ -41,21 +50,19 @@ public class MainService extends AsyncTask<String, Integer, Void> implements Ser
     private static final String SERVER_MESSAGE_RECEIVE = "M";
     private static final String SERVER_QUEUE_EMPTY = "Z";
 
-
     // Client markers
     private static final String CLIENT_START_MESSAGE = "W";
     private static final String CLIENT_SEND_DATA = "S";
     private static final String CLIENT_GET_DATA = "R";
 
 
-    public MainService(Connection connection) {
+    public MainService(Connection connection, RealmResults<Package> packages) {
         mConnection = connection;
-        mConnection.attachDelegate(this);
+        mPackages = packages; // TODO INIT LIST
     }
 
     public MainService(Connection connection, Package pack) {
         mConnection = connection;
-        mConnection.attachDelegate(this);
         mPackage = pack;
     }
 
@@ -65,9 +72,19 @@ public class MainService extends AsyncTask<String, Integer, Void> implements Ser
      */
     @Override
     protected Void doInBackground(String... params) {
-        mConnection.start();
-        mConnection.sendMessage(CLIENT_START_MESSAGE.getBytes()); // TODO client-start-protocol-message = "W" "\n" .
+        mConnection.start(this);
         return null;
+    }
+
+
+    /**
+     *  Override from AsyncTask
+     *  @see AsyncTask
+     */
+    @Override
+    protected void onPreExecute() {
+        super.onPreExecute();
+        mRealm = RealmSecure.getDefault();
     }
 
 
@@ -89,7 +106,11 @@ public class MainService extends AsyncTask<String, Integer, Void> implements Ser
     @Override
     protected void onPostExecute(Void aVoid) {
         super.onPostExecute(aVoid);
-        if (mObserver != null) mObserver.onComplete();
+        mRealm.close();
+        onStop();
+        if (mObserver != null && isSuccess) {
+            mObserver.onSuccess();
+        }
     }
 
 
@@ -99,18 +120,7 @@ public class MainService extends AsyncTask<String, Integer, Void> implements Ser
      */
     @Override
     public void onStop() {
-        if (!isCancelled()) cancel(true);
         mConnection.stopClient();
-    }
-
-
-    /**
-     *  Override from Service
-     *  @see Service
-     */
-    @Override
-    public void onStart() {
-        this.execute();
     }
 
 
@@ -129,11 +139,31 @@ public class MainService extends AsyncTask<String, Integer, Void> implements Ser
      *  @see ConnectionDelegate
      */
     @Override
+    public void onConnectionEvent(int code) {
+        switch (code) {
+            case ServiceEvent.ERROR_SEND_MESSAGE:
+                publishProgress(ServiceEvent.ERROR_SEND_MESSAGE);
+                break;
+            case ServiceEvent.ERROR_CONNECT:
+                publishProgress(ServiceEvent.ERROR_CONNECT);
+                break;
+            case ServiceEvent.SERVER_DID_CONNECT:
+                mConnection.sendMessage(generateSimpleMessage(CLIENT_START_MESSAGE).getBytes());
+                break;
+        }
+    }
+
+
+    /**
+     *  Override from ConnectionDelegate
+     *  @see ConnectionDelegate
+     */
+    @Override
     public void messageReceived(byte[] response) {
         try {
             String[] sessionParams = new String(response).split("\\s+");
             switch (sessionParams[0]) {
-                // SUCCESS RESPONSE
+                // SUCCESS STATUS_RESPONSE
                 case SERVER_REPORT_QUEUE:
                     startPackageQueueProtocol(sessionParams[1]);
                     break;
@@ -144,27 +174,27 @@ public class MainService extends AsyncTask<String, Integer, Void> implements Ser
                     startOutputProtocol(sessionParams[1]);
                     break;
 
-                // ERROR RESPONSE
+                // ERROR STATUS_RESPONSE
                 case SERVER_MESSAGE_REJECT:
-                    onProgressUpdate(ServiceError.ERROR_PACKAGE_OUTPUT);
+                    onProgressUpdate(ServiceEvent.ERROR_PACKAGE_OUTPUT);
                     startInputProtocol();
                 case SERVER_QUEUE_EMPTY:
                     startOutputEmptyProtocol();
                     break;
 
-                // DEFAULT RESPONSE
+                // DEFAULT STATUS_RESPONSE
                 default:
-                    publishProgress(ServiceError.ERROR_RESPONSE);
+                    publishProgress(ServiceEvent.ERROR_RESPONSE);
                     break;
             }
         } catch (Exception exception) {
-            publishProgress(ServiceError.ERROR_UNKNOWN);
+            publishProgress(ServiceEvent.ERROR_UNKNOWN);
         }
     }
 
 
     /**
-     * Данный метод генерирует простое сообщение, содержащее только маркер запроса
+     * Данный метод генерирует простое сообщение, содержащее маркер запроса
      * @param marker маркер запроса
      * @return сообщение запроса к серверу
      */
@@ -183,7 +213,7 @@ public class MainService extends AsyncTask<String, Integer, Void> implements Ser
      * @param pack - BASE64(INBOX,OUTBOX) число входящих и исходящих пакетов
      */
     private void startPackageQueueProtocol(String pack) {
-        byte[] packages = Base64.decode(pack, Base64.DEFAULT);
+        byte[] packages = Base64.decode(pack, Base64.NO_WRAP);
         ArrayList<byte[]> packagesList = ByteHelper.split(packages, ByteHelper.COMMA);
         int outCount = Integer.parseInt(new String(packagesList.get(1)));
         if (outCount > 0) {
@@ -191,14 +221,6 @@ public class MainService extends AsyncTask<String, Integer, Void> implements Ser
         } else {
             startInputProtocol();
         }
-    }
-
-    /**
-     * Данный протокол срабатывает, при успешной отправке исходящего пакета на серевер,
-     * удаляет данные об отправленном пакете и продолжает работу сервиса
-     */
-    private void startConfirmProtocol() {
-        startInputProtocol();
     }
 
 
@@ -210,19 +232,46 @@ public class MainService extends AsyncTask<String, Integer, Void> implements Ser
      * входящего пакета.
      */
     private void startInputProtocol() {
-        if (mPackages.size() > 0) {
-            startSendPackProtocol();
+        if (mPackages != null && mPackages.size() > 0) {
+            startSendPackProtocol(mPackages.get(0));
+        } else if (mPackage != null) {
+            startSendPackProtocol(mPackage);
         } else {
             startGetPackProtocol();
         }
     }
 
+
     /**
      * Данный протокол срабатывает, для генерации и отправки очередного исходящего пакета на сервер.
      */
-    private void startSendPackProtocol() {
+    private void startSendPackProtocol(Package aPackage) {
+        // TODO KEY?
+        byte[] message = KeyCrypter.encode(mProfile.getSessionId(),
+                PackageHelper.convertToMessage(aPackage));
 
+        ByteArray request = new ByteArray();
+        request.append(CLIENT_SEND_DATA.getBytes());
+        request.append(ByteHelper.SPACE);
+        request.append(Base64.encode(message, Base64.NO_WRAP));
+        request.append(ByteHelper.SPACE);
+        request.append(ByteHelper.NL);
+
+        mConnection.sendMessage(request.array());
     }
+
+
+    /**
+     * Данный протокол срабатывает, при успешной отправке исходящего пакета на серевер,
+     * удаляет данные об отправленном пакете и продолжает работу сервиса
+     */
+    private void startConfirmProtocol() {
+        if (mPackage != null ) mPackage = null;
+        else if (mPackages != null && mPackages.size() > 0)
+            PackageRepository.deleteFirstPackage(mRealm, mPackages);
+        startInputProtocol();
+    }
+
 
     /**
      * Проктол срабатывает при получении входящего пакета от сервера.
@@ -234,18 +283,22 @@ public class MainService extends AsyncTask<String, Integer, Void> implements Ser
      * на устройстве, а исходящий удаляется из очереди.
      * 2. Если в исходящей очереди не найдет пакет с таким же идетификатором объекта, входящий
      * пакет сохраняется на устройстве.
-     * @param pack входящий пакет BASE64(Ek(message))
+     * 3. Выполняется запрос на получение очередного входящего пакета
+     * @param message входящий пакет BASE64(Ek(message))
      */
-    private void startOutputProtocol(String pack) {
+    private void startOutputProtocol(String message) {
+        byte[] messageDecode = Base64.decode(message.getBytes(), Base64.NO_WRAP);
 
+        startGetPackProtocol();
     }
 
     /**
-     * Протокол генерирует и отправляет запрос серверу на отправку входящего пакета
+     * Протокол генерирует и отправляет запрос серверу на отправку очередного входящего пакета
      */
     private void startGetPackProtocol() {
-        mConnection.sendMessage(CLIENT_GET_DATA.getBytes());
+        mConnection.sendMessage(generateSimpleMessage(CLIENT_GET_DATA).getBytes());
     }
+
 
     /**
      * Данный протокол срабатывает, когда входящая очередь сообщений от сервера пуста.
@@ -253,10 +306,11 @@ public class MainService extends AsyncTask<String, Integer, Void> implements Ser
      * Если исходящая очередь пуста, соединение разрывается, сервис успешно заканчивает свою работу.
      */
     private void startOutputEmptyProtocol() {
-        if (mPackages.size() > 0) {
+        if (mPackages != null && mPackages.size() > 0) {
             startInputProtocol();
         } else {
-            mConnection.stopClient();
+            isSuccess = true;
+            onStop();
         }
     }
 

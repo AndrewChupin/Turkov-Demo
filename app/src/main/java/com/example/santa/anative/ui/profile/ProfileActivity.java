@@ -30,6 +30,8 @@ public class ProfileActivity extends AppCompatActivity implements ProfileView {
 
     private ProfilePresenter mProfilePresenter;
     private ProgressDialog mProgressDialog;
+    private Profile mProfile;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -39,36 +41,54 @@ public class ProfileActivity extends AppCompatActivity implements ProfileView {
         initializeToolbar();
         initializePresenter();
         initializeDialog();
+        onBindData();
     }
+
 
     private void initializePresenter() {
         mProfilePresenter = new ProfilePresenter(this);
         mProfilePresenter.onCreate();
     }
 
+
     private void initializeDialog() {
         mProgressDialog = new ProgressDialog(this);
         mProgressDialog.setCancelable(false);
-        mProgressDialog.setTitle(R.string.waiting);
+        mProgressDialog.setMessage(getString(R.string.waiting));
     }
+
 
     private void initializeToolbar() {
         mTitleProfile.setText(R.string.title_profile);
-        mToolbarProfile.setTitle("");
         setSupportActionBar(mToolbarProfile);
         mToolbarProfile.inflateMenu(R.menu.edit_equipment);
-        if (getSupportActionBar() != null) getSupportActionBar()
-                .setDisplayHomeAsUpEnabled(true);
+        if (getSupportActionBar() != null) {
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+            getSupportActionBar().setDisplayShowTitleEnabled(false);
+        }
     }
+
+
+    public void onBindData() {
+        mProfile = mProfilePresenter.findProfile();
+        etName.setText(mProfile.getName());
+        etSurname.setText(mProfile.getSurname());
+        etPatronymic.setText(mProfile.getPatronymic());
+        etEmail.setText(mProfile.getEmail());
+        etPhone.setText(mProfile.getPhone());
+    }
+
 
     @OnClick(R.id.btn_profile_save)
     void onClickSave() {
-        mProfilePresenter.onSaveProfile(etName.getText().toString(),
-                etSurname.getText().toString(),
-                etPatronymic.getText().toString(),
-                etEmail.getText().toString(),
-                etPhone.getText().toString());
+        mProfile.setName(etName.getText().toString());
+        mProfile.setSurname(etSurname.getText().toString());
+        mProfile.setPatronymic(etPatronymic.getText().toString());
+        mProfile.setPhone(etPhone.getText().toString());
+        mProfile.setEmail(etEmail.getText().toString());
+        mProfilePresenter.onSaveProfile(mProfile);
     }
+
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
@@ -88,24 +108,18 @@ public class ProfileActivity extends AppCompatActivity implements ProfileView {
         mProfilePresenter.onDestroy();
     }
 
-    @Override
-    public void showProfileInfo(Profile profile) {
-        etName.setText(profile.getName());
-        etSurname.setText(profile.getSurname());
-        etPatronymic.setText(profile.getPatronymic());
-        etEmail.setText(profile.getEmail());
-        etPhone.setText(profile.getPhone());
-    }
 
     @Override
     public void showDialog() {
         mProgressDialog.show();
     }
 
+
     @Override
     public void hideDialog() {
         mProgressDialog.dismiss();
     }
+
 
     @Override
     public void showMessage(@StringRes int res) {

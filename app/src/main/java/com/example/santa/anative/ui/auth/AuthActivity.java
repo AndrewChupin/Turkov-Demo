@@ -11,6 +11,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.example.santa.anative.R;
+import com.example.santa.anative.application.AppDelegate;
 import com.example.santa.anative.ui.main.MainActivity;
 import com.example.santa.anative.ui.registration.RegistrationActivity;
 import com.example.santa.anative.ui.reset.ResetActivity;
@@ -54,7 +55,7 @@ public class AuthActivity extends AppCompatActivity implements AuthView {
 
     private void initializeDialog() {
         mProgressDialog = new ProgressDialog(this);
-        mProgressDialog.setTitle(R.string.authorization);
+        mProgressDialog.setMessage(getString(R.string.authorization));
         mProgressDialog.setCancelable(false);
     }
 
