@@ -2,12 +2,12 @@ apply plugin: 'com.android.application'
 apply plugin: 'realm-android'
 
 android {
-    compileSdkVersion 25
-    buildToolsVersion "25.0.2"
+    compileSdkVersion 26
+    buildToolsVersion "27.0.3"
     defaultConfig {
         applicationId "com.example.santa.anative"
         minSdkVersion 17
-        targetSdkVersion 25
+        targetSdkVersion 26
         multiDexEnabled = true
         versionCode 1
         versionName "1.0"
@@ -36,8 +36,8 @@ android {
 }
 
 ext {
-    supportLibVersion = '25.3.1'
-    playServicesLibVersion = '10.2.1'
+    supportLibVersion = '27.0.2'
+    playServicesLibVersion = '11.4.2'
 }
 
 dependencies {
